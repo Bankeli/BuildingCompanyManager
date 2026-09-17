@@ -26,11 +26,10 @@ public class Employee
     [Display(Name = "Job title")]
     public string JobTitle { get; set; } = string.Empty;
 
-    [Required]
     [Range(typeof(decimal), "0.01", "999999.99")]
     [Column(TypeName = "decimal(18,2)")]
     [Display(Name = "Daily rate")]
-    public decimal DailyRate { get; set; }
+    public decimal? DailyRate { get; set; }
 
     [Required]
     [StringLength(50, MinimumLength = 2)]
