@@ -1,8 +1,36 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Builder Manager";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="home-page">
+    <section class="home-hero" aria-labelledby="home-title">
+        <div class="home-hero-content">
+            <p class="home-eyebrow">Construction operations</p>
+            <h1 id="home-title">Builder Manager</h1>
+            <p class="home-summary">
+                A focused workspace for construction companies and the teams behind every project.
+            </p>
+            <div class="home-actions">
+                <a class="btn app-btn-primary"
+                   asp-controller="CompanyRegistration"
+                   asp-action="Register">
+                    Register company
+                </a>
+                <a class="btn app-btn-secondary"
+                   asp-area="Identity"
+                   asp-page="/Account/Login">
+                    Sign in
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-modules" aria-label="Application modules">
+        <div class="home-modules-inner">
+            <span>Companies</span>
+            <span>Crews</span>
+            <span>Attendance</span>
+            <span>Projects</span>
+        </div>
+    </section>
 </div>
