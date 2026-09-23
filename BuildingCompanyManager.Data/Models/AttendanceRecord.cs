@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 
 namespace BuildingCompanyManager.Data.Models;
 
@@ -15,35 +16,35 @@ public class AttendanceRecord
     public int ProjectCrewId { get; set; }
 
     [Required]
-    [Display(Name = "Marked by foreman")]
+    [Display(Name = EntityDisplayNames.MarkedByForeman)]
     public int MarkedByForemanId { get; set; }
 
     [Required]
     [DataType(DataType.Date)]
-    [Display(Name = "Work date")]
+    [Display(Name = EntityDisplayNames.WorkDate)]
     public DateOnly WorkDate { get; set; }
 
-    [Display(Name = "Present")]
+    [Display(Name = EntityDisplayNames.Present)]
     public bool IsPresent { get; set; }
 
     [Required]
-    [Range(typeof(decimal), "0.01", "999999.99")]
-    [Column(TypeName = "decimal(18,2)")]
-    [Display(Name = "Daily rate")]
+    [Range(typeof(decimal), EntityValidationConstants.MinimumPositiveAmount, EntityValidationConstants.MaximumMoneyAmount)]
+    [Column(TypeName = EntityValidationConstants.MoneyColumnType)]
+    [Display(Name = EntityDisplayNames.DailyRate)]
     public decimal DailyRateSnapshot { get; set; }
 
-    [Range(typeof(decimal), "0", "24")]
-    [Column(TypeName = "decimal(5,2)")]
-    [Display(Name = "Extra hours")]
+    [Range(typeof(decimal), EntityValidationConstants.MinimumZeroAmount, EntityValidationConstants.MaximumExtraHours)]
+    [Column(TypeName = EntityValidationConstants.HoursColumnType)]
+    [Display(Name = EntityDisplayNames.ExtraHours)]
     public decimal ExtraHours { get; set; }
 
-    [Range(typeof(decimal), "0", "999999.99")]
-    [Column(TypeName = "decimal(18,2)")]
-    [Display(Name = "Bonus amount")]
+    [Range(typeof(decimal), EntityValidationConstants.MinimumZeroAmount, EntityValidationConstants.MaximumMoneyAmount)]
+    [Column(TypeName = EntityValidationConstants.MoneyColumnType)]
+    [Display(Name = EntityDisplayNames.BonusAmount)]
     public decimal BonusAmount { get; set; }
 
-    [StringLength(1000)]
-    [Display(Name = "Foreman comment")]
+    [StringLength(EntityValidationConstants.ForemanCommentMaxLength)]
+    [Display(Name = EntityDisplayNames.ForemanComment)]
     public string? ForemanComment { get; set; }
 
     public DateTime CreatedOn { get; set; } = DateTime.UtcNow;

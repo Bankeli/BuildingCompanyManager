@@ -1,9 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@using BuildingCompanyManager.Common
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BuildingCompanyManager</title>
+    <title>@ViewData[ApplicationConstants.ViewTitleKey] - @ApplicationConstants.ApplicationName</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -13,11 +16,11 @@
     <header class="app-header">
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm app-navbar">
             <div class="container-fluid">
-                <a class="navbar-brand app-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    Builder Manager
+                <a class="navbar-brand app-brand" asp-area="" asp-controller="@RouteConstants.HomeController" asp-action="@RouteConstants.IndexAction">
+                    <img class="app-brand-logo" src="~/images/logo.png" alt="@ApplicationConstants.ApplicationName" />
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false" aria-label="@SharedLayoutTexts.ToggleNavigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
@@ -35,8 +38,8 @@
 
     <footer class="app-footer">
         <div class="container">
-            <span>&copy; 2026 Builder Manager</span>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <span>&copy; @DateTime.UtcNow.Year @ApplicationConstants.ApplicationName</span>
+            <a asp-area="" asp-controller="@RouteConstants.HomeController" asp-action="@RouteConstants.PrivacyAction">@SharedLayoutTexts.Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

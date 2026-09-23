@@ -1,4 +1,5 @@
 using BuildingCompanyManager.Data.Models;
+using BuildingCompanyManager.Data.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -40,8 +41,9 @@ public class ApplicationDbContext : IdentityDbContext
     {
         builder.Entity<Company>(entity =>
         {
-            entity.ToTable("Companies");
+            entity.ToTable(DatabaseConstants.CompaniesTableName);
             entity.HasIndex(company => company.RegistrationNumber).IsUnique();
+            entity.HasIndex(company => company.Name).IsUnique();
 
             entity.HasMany(company => company.Employees)
                 .WithOne(employee => employee.Company)
@@ -64,7 +66,7 @@ public class ApplicationDbContext : IdentityDbContext
     {
         builder.Entity<Employee>(entity =>
         {
-            entity.ToTable("Employees");
+            entity.ToTable(DatabaseConstants.EmployeesTableName);
             entity.Property(employee => employee.Role).HasConversion<int>();
             entity.HasIndex(employee => employee.UserId).IsUnique();
             entity.HasIndex(employee => new { employee.CompanyId, employee.Role });
@@ -85,10 +87,10 @@ public class ApplicationDbContext : IdentityDbContext
     {
         builder.Entity<Crew>(entity =>
         {
-            entity.ToTable("Crews");
+            entity.ToTable(DatabaseConstants.CrewsTableName);
             entity.HasIndex(crew => crew.ForemanId)
                 .IsUnique()
-                .HasFilter("[IsActive] = 1");
+                .HasFilter(DatabaseConstants.ActiveCrewForemanFilter);
 
             entity.HasOne(crew => crew.TechnicalManager)
                 .WithMany(employee => employee.ManagedCrews)
@@ -106,7 +108,7 @@ public class ApplicationDbContext : IdentityDbContext
     {
         builder.Entity<Project>(entity =>
         {
-            entity.ToTable("Projects");
+            entity.ToTable(DatabaseConstants.ProjectsTableName);
             entity.Property(project => project.Status).HasConversion<int>();
             entity.HasIndex(project => new { project.CompanyId, project.Status });
 
@@ -122,8 +124,8 @@ public class ApplicationDbContext : IdentityDbContext
         builder.Entity<ProjectCrew>(entity =>
         {
             entity.ToTable(table => table.HasCheckConstraint(
-                "CK_ProjectCrews_AssignmentDates",
-                "[AssignedTo] IS NULL OR [AssignedTo] >= [AssignedFrom]"));
+                DatabaseConstants.ProjectCrewAssignmentDatesConstraintName,
+                DatabaseConstants.ProjectCrewAssignmentDatesConstraintSql));
 
             entity.HasIndex(projectCrew => new
             {
@@ -151,11 +153,11 @@ public class ApplicationDbContext : IdentityDbContext
             entity.ToTable(table =>
             {
                 table.HasCheckConstraint(
-                    "CK_AttendanceRecords_ExtraHours",
-                    "[ExtraHours] >= 0 AND [ExtraHours] <= 24");
+                    DatabaseConstants.AttendanceExtraHoursConstraintName,
+                    DatabaseConstants.AttendanceExtraHoursConstraintSql);
                 table.HasCheckConstraint(
-                    "CK_AttendanceRecords_BonusAmount",
-                    "[BonusAmount] >= 0");
+                    DatabaseConstants.AttendanceBonusAmountConstraintName,
+                    DatabaseConstants.AttendanceBonusAmountConstraintSql);
             });
 
             entity.HasIndex(record => new { record.EmployeeId, record.WorkDate }).IsUnique();

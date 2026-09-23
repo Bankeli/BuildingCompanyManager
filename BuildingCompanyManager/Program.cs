@@ -1,4 +1,5 @@
 using BuildingCompanyManager.Data;
+using BuildingCompanyManager.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,12 +12,14 @@ namespace BuildingCompanyManager
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = builder.Configuration.GetConnectionString(ApplicationConstants.DefaultConnectionName)
+                    ?? throw new InvalidOperationException(ApplicationConstants.MissingConnectionStringMessage);
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
 
@@ -29,7 +32,7 @@ namespace BuildingCompanyManager
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler(ApplicationConstants.ErrorHandlerPath);
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -42,8 +45,8 @@ namespace BuildingCompanyManager
 
             app.MapStaticAssets();
             app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
+                name: ApplicationConstants.DefaultRouteName,
+                pattern: ApplicationConstants.DefaultRoutePattern)
                 .WithStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();

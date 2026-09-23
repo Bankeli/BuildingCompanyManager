@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 
 namespace BuildingCompanyManager.Data.Models;
 
@@ -16,11 +17,11 @@ public class ProjectCrew
 
     [Required]
     [DataType(DataType.Date)]
-    [Display(Name = "Assigned from")]
+    [Display(Name = EntityDisplayNames.AssignedFrom)]
     public DateOnly AssignedFrom { get; set; }
 
     [DataType(DataType.Date)]
-    [Display(Name = "Assigned to")]
+    [Display(Name = EntityDisplayNames.AssignedTo)]
     public DateOnly? AssignedTo { get; set; }
 
     public bool IsActive { get; set; } = true;

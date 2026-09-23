@@ -1,48 +1,54 @@
 using System.ComponentModel.DataAnnotations;
+using BuildingCompanyManager.Common;
 
 namespace BuildingCompanyManager.Models;
 
 public class CompanyRegistrationInputModel
 {
     [Required]
-    [StringLength(100, MinimumLength = 2)]
-    [Display(Name = "Company name")]
+    [StringLength(CompanyRegistrationValidationConstants.CompanyNameMaxLength, MinimumLength = CompanyRegistrationValidationConstants.NameMinLength)]
+    [Display(Name = CompanyRegistrationTexts.CompanyName)]
     public string CompanyName { get; set; } = string.Empty;
 
     [Required]
     [RegularExpression(
-        @"^(\d{9}|\d{13})$",
-        ErrorMessage = "EIK must contain exactly 9 or 13 digits.")]
-    [Display(Name = "EIK")]
+        CompanyRegistrationValidationConstants.RegistrationNumberPattern,
+        ErrorMessage = CompanyRegistrationValidationConstants.RegistrationNumberError)]
+    [Display(Name = CompanyRegistrationTexts.RegistrationNumber)]
     public string RegistrationNumber { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(50, MinimumLength = 2)]
-    [Display(Name = "First name")]
+    [StringLength(CompanyRegistrationValidationConstants.AddressMaxLength, MinimumLength = CompanyRegistrationValidationConstants.AddressMinLength)]
+    [Display(Name = CompanyRegistrationTexts.CompanyAddress)]
+    public string Address { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(CompanyRegistrationValidationConstants.NameMaxLength, MinimumLength = CompanyRegistrationValidationConstants.NameMinLength)]
+    [Display(Name = CompanyRegistrationTexts.FirstName)]
     public string OwnerFirstName { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(50, MinimumLength = 2)]
-    [Display(Name = "Last name")]
+    [StringLength(CompanyRegistrationValidationConstants.NameMaxLength, MinimumLength = CompanyRegistrationValidationConstants.NameMinLength)]
+    [Display(Name = CompanyRegistrationTexts.LastName)]
     public string OwnerLastName { get; set; } = string.Empty;
 
     [Required]
     [EmailAddress]
-    [Display(Name = "Email")]
+    [Display(Name = CompanyRegistrationTexts.Email)]
     public string Email { get; set; } = string.Empty;
 
     [Required]
     [StringLength(
-        100,
-        MinimumLength = 6,
-        ErrorMessage = "{0} must be at least {2} characters long.")]
+        CompanyRegistrationValidationConstants.PasswordMaxLength,
+        MinimumLength = CompanyRegistrationValidationConstants.PasswordMinLength,
+        ErrorMessage = CompanyRegistrationValidationConstants.PasswordLengthError)]
     [DataType(DataType.Password)]
-    [Display(Name = "Password")]
+    [Display(Name = CompanyRegistrationTexts.Password)]
     public string Password { get; set; } = string.Empty;
 
     [Required]
     [DataType(DataType.Password)]
-    [Display(Name = "Confirm password")]
-    [Compare(nameof(Password), ErrorMessage = "The password and confirmation password do not match.")]
+    [Display(Name = CompanyRegistrationTexts.ConfirmPassword)]
+    [Compare(nameof(Password), ErrorMessage = CompanyRegistrationValidationConstants.PasswordConfirmationError)]
     public string ConfirmPassword { get; set; } = string.Empty;
 }

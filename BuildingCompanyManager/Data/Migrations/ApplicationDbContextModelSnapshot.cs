@@ -106,6 +106,9 @@ namespace BuildingCompanyManager.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.HasIndex("RegistrationNumber")
                         .IsUnique();
 

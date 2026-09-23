@@ -1,36 +1,44 @@
-﻿@{
-    ViewData["Title"] = "Builder Manager";
+﻿@using BuildingCompanyManager.Common
+
+
+@{
+    ViewData[ApplicationConstants.ViewTitleKey] = HomePageTexts.Title;
 }
 
 <div class="home-page">
+    @if (TempData[RouteConstants.CompanyRegistrationSuccessMessageKey] is string successMessage)
+    {
+        <div class="alert alert-success mb-0" role="status">@successMessage</div>
+    }
+
     <section class="home-hero" aria-labelledby="home-title">
         <div class="home-hero-content">
-            <p class="home-eyebrow">Construction operations</p>
-            <h1 id="home-title">Builder Manager</h1>
+            <p class="home-eyebrow">@HomePageTexts.Eyebrow</p>
+            <h1 id="home-title">@HomePageTexts.Title</h1>
             <p class="home-summary">
-                A focused workspace for construction companies and the teams behind every project.
+                @HomePageTexts.Summary
             </p>
             <div class="home-actions">
                 <a class="btn app-btn-primary"
-                   asp-controller="CompanyRegistration"
-                   asp-action="Register">
-                    Register company
+                   asp-controller="@RouteConstants.CompanyRegistrationController"
+                   asp-action="@RouteConstants.RegisterAction">
+                    @HomePageTexts.RegisterCompany
                 </a>
                 <a class="btn app-btn-secondary"
-                   asp-area="Identity"
-                   asp-page="/Account/Login">
-                    Sign in
+                   asp-area="@IdentityRouteConstants.AreaName"
+                   asp-page="@IdentityRouteConstants.LoginPage">
+                    @HomePageTexts.SignIn
                 </a>
             </div>
         </div>
     </section>
 
-    <section class="home-modules" aria-label="Application modules">
+    <section class="home-modules" aria-label="@HomePageTexts.ModulesLabel">
         <div class="home-modules-inner">
-            <span>Companies</span>
-            <span>Crews</span>
-            <span>Attendance</span>
-            <span>Projects</span>
+            <span>@HomePageTexts.Companies</span>
+            <span>@HomePageTexts.Crews</span>
+            <span>@HomePageTexts.Attendance</span>
+            <span>@HomePageTexts.Projects</span>
         </div>
     </section>
 </div>

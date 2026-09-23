@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 using BuildingCompanyManager.Data.Enums;
 
 namespace BuildingCompanyManager.Data.Models;
@@ -13,20 +14,20 @@ public class Project
     public int CompanyId { get; set; }
 
     [Required]
-    [Display(Name = "Technical manager")]
+    [Display(Name = EntityDisplayNames.TechnicalManager)]
     public int TechnicalManagerId { get; set; }
 
     [Required]
-    [StringLength(150, MinimumLength = 2)]
+    [StringLength(EntityValidationConstants.ProjectNameMaxLength)]
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(100, MinimumLength = 2)]
-    [Display(Name = "Client name")]
+    [StringLength(EntityValidationConstants.CompanyNameMaxLength)]
+    [Display(Name = EntityDisplayNames.ClientName)]
     public string ClientName { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(200, MinimumLength = 5)]
+    [StringLength(EntityValidationConstants.AddressMaxLength)]
     public string Address { get; set; } = string.Empty;
 
     [Required]
@@ -34,11 +35,11 @@ public class Project
 
     [Required]
     [DataType(DataType.Date)]
-    [Display(Name = "Start date")]
+    [Display(Name = EntityDisplayNames.StartDate)]
     public DateOnly StartDate { get; set; }
 
     [DataType(DataType.Date)]
-    [Display(Name = "End date")]
+    [Display(Name = EntityDisplayNames.EndDate)]
     public DateOnly? EndDate { get; set; }
 
     [ForeignKey(nameof(CompanyId))]

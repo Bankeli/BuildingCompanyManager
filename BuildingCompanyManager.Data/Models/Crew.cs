@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 
 namespace BuildingCompanyManager.Data.Models;
 
@@ -12,15 +13,15 @@ public class Crew
     public int CompanyId { get; set; }
 
     [Required]
-    [Display(Name = "Technical manager")]
+    [Display(Name = EntityDisplayNames.TechnicalManager)]
     public int TechnicalManagerId { get; set; }
 
     [Required]
-    [Display(Name = "Foreman")]
+    [Display(Name = EntityDisplayNames.Foreman)]
     public int ForemanId { get; set; }
 
     [Required]
-    [StringLength(100, MinimumLength = 2)]
+    [StringLength(EntityValidationConstants.CompanyNameMaxLength)]
     public string Name { get; set; } = string.Empty;
 
     public bool IsActive { get; set; } = true;

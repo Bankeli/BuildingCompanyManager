@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 using BuildingCompanyManager.Data.Enums;
 
 namespace BuildingCompanyManager.Data.Models;
@@ -10,7 +11,7 @@ public class Employee
     public int Id { get; set; }
 
     [Required]
-    [StringLength(450)]
+    [StringLength(EntityValidationConstants.UserIdMaxLength)]
     public string UserId { get; set; } = string.Empty;
 
     [Required]
@@ -22,28 +23,28 @@ public class Employee
     public EmployeeRole Role { get; set; }
 
     [Required]
-    [StringLength(100, MinimumLength = 2)]
-    [Display(Name = "Job title")]
+    [StringLength(EntityValidationConstants.JobTitleMaxLength)]
+    [Display(Name = EntityDisplayNames.JobTitle)]
     public string JobTitle { get; set; } = string.Empty;
 
-    [Range(typeof(decimal), "0.01", "999999.99")]
-    [Column(TypeName = "decimal(18,2)")]
-    [Display(Name = "Daily rate")]
+    [Range(typeof(decimal), EntityValidationConstants.MinimumPositiveAmount, EntityValidationConstants.MaximumMoneyAmount)]
+    [Column(TypeName = EntityValidationConstants.MoneyColumnType)]
+    [Display(Name = EntityDisplayNames.DailyRate)]
     public decimal? DailyRate { get; set; }
 
     [Required]
-    [StringLength(50, MinimumLength = 2)]
-    [Display(Name = "First name")]
+    [StringLength(EntityValidationConstants.PersonNameMaxLength)]
+    [Display(Name = EntityDisplayNames.FirstName)]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(50, MinimumLength = 2)]
-    [Display(Name = "Last name")]
+    [StringLength(EntityValidationConstants.PersonNameMaxLength)]
+    [Display(Name = EntityDisplayNames.LastName)]
     public string LastName { get; set; } = string.Empty;
 
     [Phone]
-    [StringLength(20)]
-    [Display(Name = "Phone number")]
+    [StringLength(EntityValidationConstants.PhoneNumberMaxLength)]
+    [Display(Name = EntityDisplayNames.PhoneNumber)]
     public string? PhoneNumber { get; set; }
 
     public bool IsActive { get; set; } = true;
