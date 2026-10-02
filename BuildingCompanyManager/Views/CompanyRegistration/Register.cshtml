@@ -2,10 +2,10 @@
 @model BuildingCompanyManager.Models.CompanyRegistrationInputModel
 
 @{
-    ViewData[ApplicationConstants.ViewTitleKey] = CompanyRegistrationTexts.PageTitle;
+    ViewData["Title"] = "Register company";
 }
 
-<h1>@BuildingCompanyManager.Common.CompanyRegistrationTexts.PageTitle</h1>
+<h1>Register company</h1>
 
 <form asp-action="Register" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -62,7 +62,7 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">@CompanyRegistrationTexts.SubmitButton</button>
+    <button type="submit" class="btn btn-primary">Register company</button>
 </form>
 
 @section Scripts {

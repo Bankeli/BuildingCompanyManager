@@ -1,0 +1,109 @@
+@using BuildingCompanyManager.Data.Enums
+@model BuildingCompanyManager.Models.Employees.EmployeeDetailsViewModel
+
+@{
+    ViewData["Title"] = "Employee profile";
+}
+
+@functions {
+    private static string GetRoleName(EmployeeRole role) => role switch
+    {
+        EmployeeRole.Owner => "Owner",
+        EmployeeRole.TechnicalManager => "Technical manager",
+        EmployeeRole.Foreman => "Foreman",
+        EmployeeRole.Worker => "Worker",
+        _ => "Unknown"
+    };
+}
+
+<section class="employee-profile-page" aria-labelledby="employee-profile-title">
+    <header class="employee-profile-header">
+        <div>
+            <a class="back-link" asp-action="Index">Back to employees</a>
+            <h1 id="employee-profile-title">@Model.FirstName @Model.LastName</h1>
+            <p>@GetRoleName(Model.Role) - @Model.JobTitle</p>
+        </div>
+        <span class="status-label @(Model.IsActive ? "status-label-active" : "status-label-inactive")">
+            @(Model.IsActive ? "Active" : "Inactive")
+        </span>
+    </header>
+
+    <div class="employee-profile-grid">
+        <section class="employee-profile-section" aria-labelledby="account-title">
+            <h2 id="account-title">Account and contact</h2>
+            <dl>
+                <div>
+                    <dt>Email</dt>
+                    <dd>@Model.Email</dd>
+                </div>
+                <div>
+                    <dt>Phone number</dt>
+                    <dd>@(Model.PhoneNumber ?? "Not provided")</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="employee-profile-section" aria-labelledby="employment-title">
+            <h2 id="employment-title">Employment</h2>
+            <dl>
+                <div>
+                    <dt>Role</dt>
+                    <dd>@GetRoleName(Model.Role)</dd>
+                </div>
+                <div>
+                    <dt>Job title</dt>
+                    <dd>@Model.JobTitle</dd>
+                </div>
+                <div>
+                    <dt>Daily rate</dt>
+                    <dd>@(Model.DailyRate is decimal dailyRate ? $"{dailyRate:F2}" : "Not applicable")</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="employee-profile-section" aria-labelledby="crew-title">
+            <h2 id="crew-title">Crew assignment</h2>
+            @if (Model.CrewName is null)
+            {
+                <p class="employee-profile-empty">This employee is not assigned to a crew.</p>
+            }
+            else
+            {
+                <dl>
+                    <div>
+                        <dt>Crew</dt>
+                        <dd>@Model.CrewName</dd>
+                    </div>
+                    <div>
+                        <dt>Foreman</dt>
+                        <dd>@Model.ForemanName</dd>
+                    </div>
+                    <div>
+                        <dt>Technical Manager</dt>
+                        <dd>@Model.TechnicalManagerName</dd>
+                    </div>
+                </dl>
+            }
+        </section>
+
+        <section class="employee-profile-section" aria-labelledby="projects-title">
+            <h2 id="projects-title">Active projects</h2>
+            @if (Model.ActiveProjects.Count == 0)
+            {
+                <p class="employee-profile-empty">There are no active projects through this crew.</p>
+            }
+            else
+            {
+                <ul class="employee-project-list">
+                    @foreach (var project in Model.ActiveProjects)
+                    {
+                        <li>
+                            <a asp-controller="Projects" asp-action="ManageCrews" asp-route-id="@project.Id">@project.Name</a>
+                            <span>@project.ClientName</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</section>

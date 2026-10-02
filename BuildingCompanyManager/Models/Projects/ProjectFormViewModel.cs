@@ -1,24 +1,17 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using BuildingCompanyManager.Data.Common;
 using BuildingCompanyManager.Data.Enums;
+using BuildingCompanyManager.Models.Shared;
 
-namespace BuildingCompanyManager.Data.Models;
+namespace BuildingCompanyManager.Models.Projects;
 
-public class Project
+public class ProjectFormViewModel
 {
-    [Key]
     public int Id { get; set; }
 
     [Required]
-    public int CompanyId { get; set; }
-
-    [Required]
-    [Display(Name = "Technical manager")]
-    public int TechnicalManagerId { get; set; }
-
-    [Required]
     [StringLength(EntityValidationConstants.ProjectNameMaxLength)]
+    [Display(Name = "Project name")]
     public string Name { get; set; } = string.Empty;
 
     [Required]
@@ -31,22 +24,20 @@ public class Project
     public string Address { get; set; } = string.Empty;
 
     [Required]
-    public ProjectStatus Status { get; set; } = ProjectStatus.Planning;
+    [Display(Name = "Technical manager")]
+    public int? TechnicalManagerId { get; set; }
+
+    [Required]
+    public ProjectStatus? Status { get; set; } = ProjectStatus.Planning;
 
     [Required]
     [DataType(DataType.Date)]
     [Display(Name = "Start date")]
-    public DateOnly StartDate { get; set; }
+    public DateOnly? StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
     [DataType(DataType.Date)]
     [Display(Name = "End date")]
     public DateOnly? EndDate { get; set; }
 
-    [ForeignKey(nameof(CompanyId))]
-    public Company Company { get; set; } = null!;
-
-    [ForeignKey(nameof(TechnicalManagerId))]
-    public Employee TechnicalManager { get; set; } = null!;
-
-    public ICollection<ProjectCrew> ProjectCrews { get; set; } = new HashSet<ProjectCrew>();
+    public IReadOnlyCollection<EmployeeOptionViewModel> TechnicalManagers { get; set; } = [];
 }

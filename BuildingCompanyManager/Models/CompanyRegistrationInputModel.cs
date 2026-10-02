@@ -7,34 +7,34 @@ public class CompanyRegistrationInputModel
 {
     [Required]
     [StringLength(CompanyRegistrationValidationConstants.CompanyNameMaxLength, MinimumLength = CompanyRegistrationValidationConstants.NameMinLength)]
-    [Display(Name = CompanyRegistrationTexts.CompanyName)]
+    [Display(Name = "Company name")]
     public string CompanyName { get; set; } = string.Empty;
 
     [Required]
     [RegularExpression(
         CompanyRegistrationValidationConstants.RegistrationNumberPattern,
         ErrorMessage = CompanyRegistrationValidationConstants.RegistrationNumberError)]
-    [Display(Name = CompanyRegistrationTexts.RegistrationNumber)]
+    [Display(Name = "EIK")]
     public string RegistrationNumber { get; set; } = string.Empty;
 
     [Required]
     [StringLength(CompanyRegistrationValidationConstants.AddressMaxLength, MinimumLength = CompanyRegistrationValidationConstants.AddressMinLength)]
-    [Display(Name = CompanyRegistrationTexts.CompanyAddress)]
+    [Display(Name = "Company address")]
     public string Address { get; set; } = string.Empty;
 
     [Required]
     [StringLength(CompanyRegistrationValidationConstants.NameMaxLength, MinimumLength = CompanyRegistrationValidationConstants.NameMinLength)]
-    [Display(Name = CompanyRegistrationTexts.FirstName)]
+    [Display(Name = "First name")]
     public string OwnerFirstName { get; set; } = string.Empty;
 
     [Required]
     [StringLength(CompanyRegistrationValidationConstants.NameMaxLength, MinimumLength = CompanyRegistrationValidationConstants.NameMinLength)]
-    [Display(Name = CompanyRegistrationTexts.LastName)]
+    [Display(Name = "Last name")]
     public string OwnerLastName { get; set; } = string.Empty;
 
     [Required]
     [EmailAddress]
-    [Display(Name = CompanyRegistrationTexts.Email)]
+    [Display(Name = "Email")]
     public string Email { get; set; } = string.Empty;
 
     [Required]
@@ -43,12 +43,12 @@ public class CompanyRegistrationInputModel
         MinimumLength = CompanyRegistrationValidationConstants.PasswordMinLength,
         ErrorMessage = CompanyRegistrationValidationConstants.PasswordLengthError)]
     [DataType(DataType.Password)]
-    [Display(Name = CompanyRegistrationTexts.Password)]
+    [Display(Name = "Password")]
     public string Password { get; set; } = string.Empty;
 
     [Required]
     [DataType(DataType.Password)]
-    [Display(Name = CompanyRegistrationTexts.ConfirmPassword)]
+    [Display(Name = "Confirm password")]
     [Compare(nameof(Password), ErrorMessage = CompanyRegistrationValidationConstants.PasswordConfirmationError)]
     public string ConfirmPassword { get; set; } = string.Empty;
 }

@@ -24,27 +24,27 @@ public class Employee
 
     [Required]
     [StringLength(EntityValidationConstants.JobTitleMaxLength)]
-    [Display(Name = EntityDisplayNames.JobTitle)]
+    [Display(Name = "Job title")]
     public string JobTitle { get; set; } = string.Empty;
 
     [Range(typeof(decimal), EntityValidationConstants.MinimumPositiveAmount, EntityValidationConstants.MaximumMoneyAmount)]
     [Column(TypeName = EntityValidationConstants.MoneyColumnType)]
-    [Display(Name = EntityDisplayNames.DailyRate)]
+    [Display(Name = "Daily rate")]
     public decimal? DailyRate { get; set; }
 
     [Required]
     [StringLength(EntityValidationConstants.PersonNameMaxLength)]
-    [Display(Name = EntityDisplayNames.FirstName)]
+    [Display(Name = "First name")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
     [StringLength(EntityValidationConstants.PersonNameMaxLength)]
-    [Display(Name = EntityDisplayNames.LastName)]
+    [Display(Name = "Last name")]
     public string LastName { get; set; } = string.Empty;
 
     [Phone]
     [StringLength(EntityValidationConstants.PhoneNumberMaxLength)]
-    [Display(Name = EntityDisplayNames.PhoneNumber)]
+    [Display(Name = "Phone number")]
     public string? PhoneNumber { get; set; }
 
     public bool IsActive { get; set; } = true;
@@ -62,4 +62,5 @@ public class Employee
     public ICollection<AttendanceRecord> AttendanceRecords { get; set; } = new HashSet<AttendanceRecord>();
 
     public ICollection<AttendanceRecord> MarkedAttendanceRecords { get; set; } = new HashSet<AttendanceRecord>();
+
 }

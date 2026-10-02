@@ -54,7 +54,7 @@ public class CompanyRegistrationController : Controller
         {
             ModelState.AddModelError(
                 nameof(model.CompanyName),
-                CompanyRegistrationTexts.CompanyNameAlreadyExists);
+                CompanyRegistrationErrorMessages.CompanyNameAlreadyExists);
         }
 
         if (await dbContext.Companies.AnyAsync(company =>
@@ -62,12 +62,12 @@ public class CompanyRegistrationController : Controller
         {
             ModelState.AddModelError(
                 nameof(model.RegistrationNumber),
-                CompanyRegistrationTexts.RegistrationNumberAlreadyExists);
+                CompanyRegistrationErrorMessages.RegistrationNumberAlreadyExists);
         }
 
         if (await userManager.FindByEmailAsync(model.Email) is not null)
         {
-            ModelState.AddModelError(nameof(model.Email), CompanyRegistrationTexts.EmailAlreadyExists);
+            ModelState.AddModelError(nameof(model.Email), CompanyRegistrationErrorMessages.EmailAlreadyExists);
         }
 
         if (!ModelState.IsValid)
@@ -126,16 +126,16 @@ public class CompanyRegistrationController : Controller
             await transaction.CommitAsync();
             await signInManager.SignInAsync(user, isPersistent: false);
 
-            TempData[RouteConstants.CompanyRegistrationSuccessMessageKey] = CompanyRegistrationTexts.RegistrationSucceeded;
+            TempData["SuccessMessage"] = "Your company has been registered successfully.";
 
-            return RedirectToAction(RouteConstants.IndexAction, RouteConstants.HomeController);
+            return RedirectToAction("Index", "Dashboard");
         }
         catch (DbUpdateException)
         {
             await transaction.RollbackAsync();
             ModelState.AddModelError(
                 string.Empty,
-                CompanyRegistrationTexts.RegistrationFailed);
+                CompanyRegistrationErrorMessages.RegistrationFailed);
 
             return View(model);
         }

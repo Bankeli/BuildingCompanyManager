@@ -9,6 +9,7 @@ public static class EntityValidationConstants
     public const int JobTitleMaxLength = 100;
     public const int PersonNameMaxLength = 50;
     public const int PhoneNumberMaxLength = 20;
+    public const int EmailMaxLength = 256;
     public const int ProjectNameMaxLength = 150;
     public const int ForemanCommentMaxLength = 1000;
 

@@ -17,11 +17,11 @@ public class ProjectCrew
 
     [Required]
     [DataType(DataType.Date)]
-    [Display(Name = EntityDisplayNames.AssignedFrom)]
+    [Display(Name = "Assigned from")]
     public DateOnly AssignedFrom { get; set; }
 
     [DataType(DataType.Date)]
-    [Display(Name = EntityDisplayNames.AssignedTo)]
+    [Display(Name = "Assigned to")]
     public DateOnly? AssignedTo { get; set; }
 
     public bool IsActive { get; set; } = true;

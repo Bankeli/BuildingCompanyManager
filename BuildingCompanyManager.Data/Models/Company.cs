@@ -14,7 +14,7 @@ public class Company
 
     [Required]
     [StringLength(EntityValidationConstants.RegistrationNumberMaxLength)]
-    [Display(Name = EntityDisplayNames.RegistrationNumber)]
+    [Display(Name = "Registration number")]
     public string RegistrationNumber { get; set; } = string.Empty;
 
     [Required]
@@ -26,4 +26,5 @@ public class Company
     public ICollection<Crew> Crews { get; set; } = new HashSet<Crew>();
 
     public ICollection<Project> Projects { get; set; } = new HashSet<Project>();
+
 }

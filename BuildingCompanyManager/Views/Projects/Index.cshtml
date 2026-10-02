@@ -1,0 +1,79 @@
+@using BuildingCompanyManager.Data.Enums
+@model BuildingCompanyManager.Models.Projects.ProjectIndexViewModel
+
+@{
+    ViewData["Title"] = "Projects";
+}
+
+@functions {
+    private static string GetStatusName(ProjectStatus status) => status switch
+    {
+        ProjectStatus.Planning => "Planning",
+        ProjectStatus.Active => "Active",
+        ProjectStatus.OnHold => "On hold",
+        ProjectStatus.Completed => "Completed",
+        ProjectStatus.Cancelled => "Cancelled",
+        _ => "Unknown"
+    };
+}
+
+<section class="management-page" aria-labelledby="projects-title">
+    <header class="management-header">
+        <div>
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="projects-title">Projects</h1>
+            <p>Track construction work and the crews assigned to it.</p>
+        </div>
+        <a class="btn app-btn-primary" asp-action="Create">Create project</a>
+    </header>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success management-notice" role="status">@successMessage</div>
+    }
+
+    <section class="management-section" aria-labelledby="project-list-title">
+        <div class="management-section-heading">
+            <h2 id="project-list-title">Company projects</h2>
+            <span>@Model.Projects.Count projects</span>
+        </div>
+
+        @if (Model.Projects.Count == 0)
+        {
+            <p class="management-empty-state">Your company does not have any projects yet.</p>
+        }
+        else
+        {
+            <div class="management-table-wrap">
+                <table class="management-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Project</th>
+                            <th scope="col">Client</th>
+                            <th scope="col">Technical Manager</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Crews</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var project in Model.Projects)
+                    {
+                        <tr>
+                            <td>@project.Name</td>
+                            <td>@project.ClientName</td>
+                            <td>@project.TechnicalManagerName</td>
+                            <td>@GetStatusName(project.Status)</td>
+                            <td>@project.ActiveCrewsCount</td>
+                            <td class="management-actions">
+                                <a class="table-action-link" asp-action="ManageCrews" asp-route-id="@project.Id">Crews</a>
+                                <a class="table-action-link" asp-action="Edit" asp-route-id="@project.Id">Edit</a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</section>

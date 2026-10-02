@@ -13,11 +13,11 @@ public class Crew
     public int CompanyId { get; set; }
 
     [Required]
-    [Display(Name = EntityDisplayNames.TechnicalManager)]
+    [Display(Name = "Technical manager")]
     public int TechnicalManagerId { get; set; }
 
     [Required]
-    [Display(Name = EntityDisplayNames.Foreman)]
+    [Display(Name = "Foreman")]
     public int ForemanId { get; set; }
 
     [Required]

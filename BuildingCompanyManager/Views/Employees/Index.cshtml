@@ -1,0 +1,109 @@
+@using BuildingCompanyManager.Data.Enums
+@model BuildingCompanyManager.Models.Employees.EmployeesIndexViewModel
+
+@{
+    ViewData["Title"] = "Employees";
+    var newEmployeeEmail = TempData["NewEmployeeEmail"] as string;
+    var generatedPassword = TempData["GeneratedPassword"] as string;
+}
+
+@functions {
+    private static string GetRoleName(EmployeeRole role) => role switch
+    {
+        EmployeeRole.Owner => "Owner",
+        EmployeeRole.TechnicalManager => "Technical manager",
+        EmployeeRole.Foreman => "Foreman",
+        EmployeeRole.Worker => "Worker",
+        _ => "Unknown"
+    };
+}
+
+<section class="management-page" aria-labelledby="employees-title">
+    <header class="management-header">
+        <div>
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="employees-title">Employees</h1>
+            <p>Manage the people working in your company.</p>
+        </div>
+        <a class="btn app-btn-primary" asp-action="Add">Add employee</a>
+    </header>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success management-notice" role="status">@successMessage</div>
+    }
+
+    @if (newEmployeeEmail is not null && generatedPassword is not null)
+    {
+        <section class="new-employee-credentials" aria-label="New employee account details">
+            <p>New employee account details</p>
+            <dl>
+                <div>
+                    <dt>Email</dt>
+                    <dd>@newEmployeeEmail</dd>
+                </div>
+                <div>
+                    <dt>Temporary password</dt>
+                    <dd><code>@generatedPassword</code></dd>
+                </div>
+            </dl>
+        </section>
+    }
+
+    <section class="management-section" aria-labelledby="team-title">
+        <div class="management-section-heading">
+            <h2 id="team-title">Company team</h2>
+            <span>@Model.Employees.Count people</span>
+        </div>
+
+        @if (Model.Employees.Count == 0)
+        {
+            <p class="management-empty-state">Your company does not have any employees yet.</p>
+        }
+        else
+        {
+            <div class="management-table-wrap">
+                <table class="management-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Job title</th>
+                            <th scope="col">Crew</th>
+                            <th scope="col">Daily rate</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var employee in Model.Employees)
+                    {
+                        <tr>
+                            <td>
+                                <a class="table-action-link" asp-action="Details" asp-route-id="@employee.Id">
+                                    @employee.FirstName @employee.LastName
+                                </a>
+                            </td>
+                            <td>@employee.Email</td>
+                            <td>@GetRoleName(employee.Role)</td>
+                            <td>@employee.JobTitle</td>
+                            <td>@(employee.CrewName ?? "Not assigned")</td>
+                            <td>@(employee.DailyRate is decimal dailyRate ? $"{dailyRate:F2}" : "Not set")</td>
+                            <td>
+                                <span class="status-label @(employee.IsActive ? "status-label-active" : "status-label-inactive")">
+                                    @(employee.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td>
+                                <a class="table-action-link" asp-action="Details" asp-route-id="@employee.Id">View profile</a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+</section>

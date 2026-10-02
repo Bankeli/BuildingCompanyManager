@@ -1,17 +1,36 @@
-﻿@using BuildingCompanyManager.Common
+@using BuildingCompanyManager.Data
+@using BuildingCompanyManager.Data.Enums
+@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Identity
+@inject ApplicationDbContext DbContext
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
+    var userId = UserManager.GetUserId(User);
+    var isOwner = userId is not null &&
+        await DbContext.Employees
+            .AsNoTracking()
+            .AnyAsync(employee =>
+                employee.UserId == userId &&
+                employee.IsActive &&
+                employee.Role == EmployeeRole.Owner);
+
+    if (isOwner)
+    {
+        <li class="nav-item">
+            <a class="nav-link app-auth-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+        </li>
+    }
+
     <li class="nav-item">
-        <a class="nav-link app-auth-link" asp-area="@IdentityRouteConstants.AreaName" asp-page="@IdentityRouteConstants.ManageIndexPage" title="@SharedLayoutTexts.ManageAccount">@User.Identity?.Name</a>
+        <a class="nav-link app-auth-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity?.Name</a>
     </li>
     <li class="nav-item">
-        <form class="form-inline" asp-area="@IdentityRouteConstants.AreaName" asp-page="@IdentityRouteConstants.LogoutPage" asp-route-returnUrl="@Url.Action(RouteConstants.IndexAction, RouteConstants.HomeController, new { area = string.Empty })">
-            <button type="submit" class="nav-link btn btn-link app-auth-link">@SharedLayoutTexts.Logout</button>
+        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button type="submit" class="nav-link btn btn-link app-auth-link">Logout</button>
         </form>
     </li>
 }
@@ -19,13 +38,13 @@ else
 {
     <li class="nav-item">
         <a class="nav-link app-auth-primary"
-           asp-controller="@RouteConstants.CompanyRegistrationController"
-           asp-action="@RouteConstants.RegisterAction">
-            @SharedLayoutTexts.RegisterCompany
+           asp-controller="CompanyRegistration"
+           asp-action="Register">
+            Register company
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link app-auth-link" asp-area="@IdentityRouteConstants.AreaName" asp-page="@IdentityRouteConstants.LoginPage">@SharedLayoutTexts.SignIn</a>
+        <a class="nav-link app-auth-link" asp-area="Identity" asp-page="/Account/Login">Sign in</a>
     </li>
 }
 </ul>

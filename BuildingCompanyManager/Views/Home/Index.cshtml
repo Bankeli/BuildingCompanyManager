@@ -1,44 +1,41 @@
-﻿@using BuildingCompanyManager.Common
-
-
 @{
-    ViewData[ApplicationConstants.ViewTitleKey] = HomePageTexts.Title;
+    ViewData["Title"] = "Builder Manager";
 }
 
 <div class="home-page">
-    @if (TempData[RouteConstants.CompanyRegistrationSuccessMessageKey] is string successMessage)
+    @if (TempData["SuccessMessage"] is string successMessage)
     {
         <div class="alert alert-success mb-0" role="status">@successMessage</div>
     }
 
     <section class="home-hero" aria-labelledby="home-title">
         <div class="home-hero-content">
-            <p class="home-eyebrow">@HomePageTexts.Eyebrow</p>
-            <h1 id="home-title">@HomePageTexts.Title</h1>
+            <p class="home-eyebrow">Construction operations</p>
+            <h1 id="home-title">Builder Manager</h1>
             <p class="home-summary">
-                @HomePageTexts.Summary
+                A focused workspace for construction companies and the teams behind every project.
             </p>
             <div class="home-actions">
                 <a class="btn app-btn-primary"
-                   asp-controller="@RouteConstants.CompanyRegistrationController"
-                   asp-action="@RouteConstants.RegisterAction">
-                    @HomePageTexts.RegisterCompany
+                   asp-controller="CompanyRegistration"
+                   asp-action="Register">
+                    Register company
                 </a>
                 <a class="btn app-btn-secondary"
-                   asp-area="@IdentityRouteConstants.AreaName"
-                   asp-page="@IdentityRouteConstants.LoginPage">
-                    @HomePageTexts.SignIn
+                   asp-area="Identity"
+                   asp-page="/Account/Login">
+                    Sign in
                 </a>
             </div>
         </div>
     </section>
 
-    <section class="home-modules" aria-label="@HomePageTexts.ModulesLabel">
+    <section class="home-modules" aria-label="Application modules">
         <div class="home-modules-inner">
-            <span>@HomePageTexts.Companies</span>
-            <span>@HomePageTexts.Crews</span>
-            <span>@HomePageTexts.Attendance</span>
-            <span>@HomePageTexts.Projects</span>
+            <span>Companies</span>
+            <span>Crews</span>
+            <span>Attendance</span>
+            <span>Projects</span>
         </div>
     </section>
 </div>
