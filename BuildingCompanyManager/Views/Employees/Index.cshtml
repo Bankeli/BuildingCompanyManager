@@ -53,12 +53,40 @@
     <section class="management-section" aria-labelledby="team-title">
         <div class="management-section-heading">
             <h2 id="team-title">Company team</h2>
-            <span>@Model.Employees.Count people</span>
+            <span>@Model.TotalEmployeesCount people</span>
         </div>
 
-        @if (Model.Employees.Count == 0)
+        <form class="employee-filter-form" method="get">
+            <div>
+                <label asp-for="SelectedCrewId">Crew</label>
+                <select asp-for="SelectedCrewId" name="crewId">
+                    <option value="">All crews</option>
+                    @foreach (var crew in Model.Crews)
+                    {
+                        <option value="@crew.Id" selected="@(crew.Id == Model.SelectedCrewId)">@crew.Name</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label asp-for="SelectedProjectId">Project</label>
+                <select asp-for="SelectedProjectId" name="projectId">
+                    <option value="">All projects</option>
+                    @foreach (var project in Model.Projects)
+                    {
+                        <option value="@project.Id" selected="@(project.Id == Model.SelectedProjectId)">@project.Name</option>
+                    }
+                </select>
+            </div>
+            <button class="btn app-btn-primary" type="submit">Apply filters</button>
+            @if (Model.SelectedCrewId is not null || Model.SelectedProjectId is not null)
+            {
+                <a class="btn app-btn-secondary" asp-action="Index">Clear filters</a>
+            }
+        </form>
+
+        @if (Model.TotalEmployeesCount == 0)
         {
-            <p class="management-empty-state">Your company does not have any employees yet.</p>
+            <p class="management-empty-state">No employees match the selected filters.</p>
         }
         else
         {
@@ -103,6 +131,31 @@
                     </tbody>
                 </table>
             </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="pagination-nav" aria-label="Employees pages">
+                    @if (Model.HasPreviousPage)
+                    {
+                        <a class="btn app-btn-secondary" asp-action="Index" asp-route-crewId="@Model.SelectedCrewId" asp-route-projectId="@Model.SelectedProjectId" asp-route-page="@(Model.CurrentPage - 1)">Previous</a>
+                    }
+                    else
+                    {
+                        <span class="btn app-btn-secondary pagination-disabled" aria-disabled="true">Previous</span>
+                    }
+
+                    <span>Page @Model.CurrentPage of @Model.TotalPages</span>
+
+                    @if (Model.HasNextPage)
+                    {
+                        <a class="btn app-btn-secondary" asp-action="Index" asp-route-crewId="@Model.SelectedCrewId" asp-route-projectId="@Model.SelectedProjectId" asp-route-page="@(Model.CurrentPage + 1)">Next</a>
+                    }
+                    else
+                    {
+                        <span class="btn app-btn-secondary pagination-disabled" aria-disabled="true">Next</span>
+                    }
+                </nav>
+            }
         }
     </section>
 

@@ -15,6 +15,7 @@ namespace BuildingCompanyManager.Controllers;
 public class EmployeesController : Controller
 {
     private const int TemporaryPasswordLength = 12;
+    private const int EmployeesPerPage = 10;
 
     private readonly ApplicationDbContext dbContext;
     private readonly UserManager<IdentityUser> userManager;
@@ -28,7 +29,7 @@ public class EmployeesController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? crewId, int? projectId, int page = 1)
     {
         var owner = await GetCurrentOwnerAsync();
 
@@ -37,12 +38,46 @@ public class EmployeesController : Controller
             return Forbid();
         }
 
-        var employees = await dbContext.Employees
+        var selectedCrewId = await GetValidCrewIdAsync(crewId, owner.CompanyId);
+        var selectedProjectId = await GetValidProjectIdAsync(projectId, owner.CompanyId);
+
+        var employeesQuery = dbContext.Employees
             .AsNoTracking()
-            .Where(employee => employee.CompanyId == owner.CompanyId)
+            .Where(employee => employee.CompanyId == owner.CompanyId);
+
+        if (selectedCrewId is not null)
+        {
+            employeesQuery = employeesQuery.Where(employee =>
+                employee.CrewId == selectedCrewId ||
+                dbContext.Crews.Any(crew =>
+                    crew.Id == selectedCrewId &&
+                    (crew.ForemanId == employee.Id || crew.TechnicalManagerId == employee.Id)));
+        }
+
+        if (selectedProjectId is not null)
+        {
+            employeesQuery = employeesQuery.Where(employee =>
+                dbContext.Projects.Any(project =>
+                    project.Id == selectedProjectId &&
+                    project.TechnicalManagerId == employee.Id) ||
+                dbContext.ProjectCrews.Any(assignment =>
+                    assignment.ProjectId == selectedProjectId &&
+                    assignment.IsActive &&
+                    (assignment.Crew.ForemanId == employee.Id ||
+                     assignment.Crew.TechnicalManagerId == employee.Id ||
+                     assignment.Crew.Members.Any(member => member.Id == employee.Id))));
+        }
+
+        var totalEmployeesCount = await employeesQuery.CountAsync();
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalEmployeesCount / (double)EmployeesPerPage));
+        var currentPage = Math.Clamp(page, 1, totalPages);
+
+        var employees = await employeesQuery
             .OrderBy(employee => employee.Role)
             .ThenBy(employee => employee.LastName)
             .ThenBy(employee => employee.FirstName)
+            .Skip((currentPage - 1) * EmployeesPerPage)
+            .Take(EmployeesPerPage)
             .Select(employee => new EmployeeListItemViewModel
             {
                 Id = employee.Id,
@@ -63,7 +98,32 @@ public class EmployeesController : Controller
         var model = new EmployeesIndexViewModel
         {
             CompanyName = owner.CompanyName,
-            Employees = employees
+            Employees = employees,
+            Crews = await dbContext.Crews
+                .AsNoTracking()
+                .Where(crew => crew.CompanyId == owner.CompanyId && crew.IsActive)
+                .OrderBy(crew => crew.Name)
+                .Select(crew => new EmployeeFilterOptionViewModel
+                {
+                    Id = crew.Id,
+                    Name = crew.Name
+                })
+                .ToListAsync(),
+            Projects = await dbContext.Projects
+                .AsNoTracking()
+                .Where(project => project.CompanyId == owner.CompanyId)
+                .OrderBy(project => project.Name)
+                .Select(project => new EmployeeFilterOptionViewModel
+                {
+                    Id = project.Id,
+                    Name = project.Name
+                })
+                .ToListAsync(),
+            SelectedCrewId = selectedCrewId,
+            SelectedProjectId = selectedProjectId,
+            CurrentPage = currentPage,
+            TotalPages = totalPages,
+            TotalEmployeesCount = totalEmployeesCount
         };
 
         return View(model);
@@ -95,15 +155,7 @@ public class EmployeesController : Controller
                 Role = employee.Role,
                 JobTitle = employee.JobTitle,
                 DailyRate = employee.DailyRate,
-                IsActive = employee.IsActive,
-                CrewId = employee.CrewId,
-                CrewName = employee.Crew != null ? employee.Crew.Name : null,
-                ForemanName = employee.Crew != null
-                    ? employee.Crew.Foreman.FirstName + " " + employee.Crew.Foreman.LastName
-                    : null,
-                TechnicalManagerName = employee.Crew != null
-                    ? employee.Crew.TechnicalManager.FirstName + " " + employee.Crew.TechnicalManager.LastName
-                    : null
+                IsActive = employee.IsActive
             })
             .SingleOrDefaultAsync();
 
@@ -112,29 +164,96 @@ public class EmployeesController : Controller
             return NotFound();
         }
 
-        if (model.CrewId is not null)
+        model.CrewAssignments = await dbContext.Crews
+            .AsNoTracking()
+            .Where(crew =>
+                crew.CompanyId == owner.CompanyId &&
+                crew.IsActive &&
+                (crew.ForemanId == model.Id ||
+                 crew.TechnicalManagerId == model.Id ||
+                 crew.Members.Any(member => member.Id == model.Id)))
+            .OrderBy(crew => crew.Name)
+            .Select(crew => new EmployeeCrewAssignmentViewModel
+            {
+                Id = crew.Id,
+                Name = crew.Name,
+                ForemanName = crew.Foreman.FirstName + " " + crew.Foreman.LastName,
+                TechnicalManagerName = crew.TechnicalManager.FirstName + " " + crew.TechnicalManager.LastName
+            })
+            .ToListAsync();
+
+        var crewIds = model.CrewAssignments.Select(crew => crew.Id).ToArray();
+        var projects = new Dictionary<int, EmployeeProjectItemViewModel>();
+
+        var managedProjects = await dbContext.Projects
+            .AsNoTracking()
+            .Where(project =>
+                project.CompanyId == owner.CompanyId &&
+                project.TechnicalManagerId == model.Id)
+            .Select(project => new EmployeeProjectItemViewModel
+            {
+                Id = project.Id,
+                Name = project.Name,
+                ClientName = project.ClientName,
+                Status = project.Status,
+                IsTechnicalManager = true
+            })
+            .ToListAsync();
+
+        foreach (var project in managedProjects)
         {
-            model.ActiveProjects = await dbContext.ProjectCrews
+            projects[project.Id] = project;
+        }
+
+        if (crewIds.Length > 0)
+        {
+            var crewProjectRows = await dbContext.ProjectCrews
                 .AsNoTracking()
                 .Where(assignment =>
-                    assignment.CrewId == model.CrewId &&
-                    assignment.IsActive &&
-                    assignment.Project.Status == ProjectStatus.Active)
-                .GroupBy(assignment => new
-                {
+                    crewIds.Contains(assignment.CrewId) &&
+                    assignment.IsActive)
+                .Select(assignment => new CrewProjectRow(
                     assignment.Project.Id,
                     assignment.Project.Name,
-                    assignment.Project.ClientName
-                })
-                .Select(group => new EmployeeProjectItemViewModel
-                {
-                    Id = group.Key.Id,
-                    Name = group.Key.Name,
-                    ClientName = group.Key.ClientName
-                })
-                .OrderBy(project => project.Name)
+                    assignment.Project.ClientName,
+                    assignment.Project.Status,
+                    assignment.Crew.Name))
                 .ToListAsync();
+
+            foreach (var projectGroup in crewProjectRows.GroupBy(project => new
+                     {
+                         project.Id,
+                         project.Name,
+                         project.ClientName,
+                         project.Status
+                     }))
+            {
+                var crewNames = projectGroup
+                    .Select(project => project.CrewName)
+                    .Distinct()
+                    .OrderBy(crewName => crewName)
+                    .ToArray();
+
+                if (projects.TryGetValue(projectGroup.Key.Id, out var managedProject))
+                {
+                    managedProject.CrewNames = crewNames;
+                    continue;
+                }
+
+                projects[projectGroup.Key.Id] = new EmployeeProjectItemViewModel
+                {
+                    Id = projectGroup.Key.Id,
+                    Name = projectGroup.Key.Name,
+                    ClientName = projectGroup.Key.ClientName,
+                    Status = projectGroup.Key.Status,
+                    CrewNames = crewNames
+                };
+            }
         }
+
+        model.ProjectAssignments = projects.Values
+            .OrderBy(project => project.Name)
+            .ToArray();
 
         return View(model);
     }
@@ -257,6 +376,35 @@ public class EmployeesController : Controller
             .SingleOrDefaultAsync();
     }
 
+    private async Task<int?> GetValidCrewIdAsync(int? crewId, int companyId)
+    {
+        if (crewId is null)
+        {
+            return null;
+        }
+
+        return await dbContext.Crews.AnyAsync(crew =>
+            crew.Id == crewId &&
+            crew.CompanyId == companyId &&
+            crew.IsActive)
+            ? crewId
+            : null;
+    }
+
+    private async Task<int?> GetValidProjectIdAsync(int? projectId, int companyId)
+    {
+        if (projectId is null)
+        {
+            return null;
+        }
+
+        return await dbContext.Projects.AnyAsync(project =>
+            project.Id == projectId &&
+            project.CompanyId == companyId)
+            ? projectId
+            : null;
+    }
+
     private static string GenerateTemporaryPassword()
     {
         const string uppercaseLetters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -297,6 +445,13 @@ public class EmployeesController : Controller
         model.Email = (model.Email?.Trim() ?? string.Empty).ToLowerInvariant();
         model.JobTitle = model.JobTitle?.Trim() ?? string.Empty;
     }
+
+    private sealed record CrewProjectRow(
+        int Id,
+        string Name,
+        string ClientName,
+        ProjectStatus Status,
+        string CrewName);
 
     private sealed record OwnerCompanyContext(int CompanyId, string CompanyName);
 }

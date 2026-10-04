@@ -16,8 +16,8 @@ public class AttendanceRecord
     public int ProjectCrewId { get; set; }
 
     [Required]
-    [Display(Name = "Marked by foreman")]
-    public int MarkedByForemanId { get; set; }
+    [Display(Name = "Recorded by")]
+    public int RecordedByEmployeeId { get; set; }
 
     [Required]
     [DataType(DataType.Date)]
@@ -26,6 +26,11 @@ public class AttendanceRecord
 
     [Display(Name = "Present")]
     public bool IsPresent { get; set; }
+
+    [Range(typeof(decimal), EntityValidationConstants.MinimumZeroAmount, EntityValidationConstants.MaximumExtraHours)]
+    [Column(TypeName = EntityValidationConstants.HoursColumnType)]
+    [Display(Name = "Worked hours")]
+    public decimal WorkedHours { get; set; }
 
     [Required]
     [Range(typeof(decimal), EntityValidationConstants.MinimumPositiveAmount, EntityValidationConstants.MaximumMoneyAmount)]
@@ -57,6 +62,6 @@ public class AttendanceRecord
     [ForeignKey(nameof(ProjectCrewId))]
     public ProjectCrew ProjectCrew { get; set; } = null!;
 
-    [ForeignKey(nameof(MarkedByForemanId))]
-    public Employee MarkedByForeman { get; set; } = null!;
+    [ForeignKey(nameof(RecordedByEmployeeId))]
+    public Employee RecordedByEmployee { get; set; } = null!;
 }

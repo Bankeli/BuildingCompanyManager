@@ -14,6 +14,16 @@
         EmployeeRole.Worker => "Worker",
         _ => "Unknown"
     };
+
+    private static string GetProjectStatusName(ProjectStatus status) => status switch
+    {
+        ProjectStatus.Planning => "Planning",
+        ProjectStatus.Active => "Active",
+        ProjectStatus.OnHold => "On hold",
+        ProjectStatus.Completed => "Completed",
+        ProjectStatus.Cancelled => "Cancelled",
+        _ => "Unknown"
+    };
 }
 
 <section class="employee-profile-page" aria-labelledby="employee-profile-title">
@@ -63,43 +73,47 @@
 
         <section class="employee-profile-section" aria-labelledby="crew-title">
             <h2 id="crew-title">Crew assignment</h2>
-            @if (Model.CrewName is null)
+            @if (Model.CrewAssignments.Count == 0)
             {
-                <p class="employee-profile-empty">This employee is not assigned to a crew.</p>
+                <p class="employee-profile-empty">This employee is not assigned to or responsible for an active crew.</p>
             }
             else
             {
-                <dl>
-                    <div>
-                        <dt>Crew</dt>
-                        <dd>@Model.CrewName</dd>
-                    </div>
-                    <div>
-                        <dt>Foreman</dt>
-                        <dd>@Model.ForemanName</dd>
-                    </div>
-                    <div>
-                        <dt>Technical Manager</dt>
-                        <dd>@Model.TechnicalManagerName</dd>
-                    </div>
-                </dl>
+                <ul class="employee-crew-list">
+                    @foreach (var crew in Model.CrewAssignments)
+                    {
+                        <li>
+                            <strong>@crew.Name</strong>
+                            <span>Technical manager: @crew.TechnicalManagerName</span>
+                            <span>Foreman: @crew.ForemanName</span>
+                        </li>
+                    }
+                </ul>
             }
         </section>
 
         <section class="employee-profile-section" aria-labelledby="projects-title">
-            <h2 id="projects-title">Active projects</h2>
-            @if (Model.ActiveProjects.Count == 0)
+            <h2 id="projects-title">Project assignments</h2>
+            @if (Model.ProjectAssignments.Count == 0)
             {
-                <p class="employee-profile-empty">There are no active projects through this crew.</p>
+                <p class="employee-profile-empty">This employee is not assigned to or responsible for a project.</p>
             }
             else
             {
                 <ul class="employee-project-list">
-                    @foreach (var project in Model.ActiveProjects)
+                    @foreach (var project in Model.ProjectAssignments)
                     {
                         <li>
                             <a asp-controller="Projects" asp-action="ManageCrews" asp-route-id="@project.Id">@project.Name</a>
-                            <span>@project.ClientName</span>
+                            <span>@project.ClientName - @GetProjectStatusName(project.Status)</span>
+                            @if (project.IsTechnicalManager)
+                            {
+                                <span>Technical manager</span>
+                            }
+                            @if (project.CrewNames.Count > 0)
+                            {
+                                <span>Crew: @string.Join(", ", project.CrewNames)</span>
+                            }
                         </li>
                     }
                 </ul>

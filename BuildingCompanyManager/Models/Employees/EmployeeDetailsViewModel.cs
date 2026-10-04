@@ -22,15 +22,20 @@ public class EmployeeDetailsViewModel
 
     public bool IsActive { get; set; }
 
-    public int? CrewId { get; set; }
+    public IReadOnlyCollection<EmployeeCrewAssignmentViewModel> CrewAssignments { get; set; } = [];
 
-    public string? CrewName { get; set; }
+    public IReadOnlyCollection<EmployeeProjectItemViewModel> ProjectAssignments { get; set; } = [];
+}
 
-    public string? ForemanName { get; set; }
+public class EmployeeCrewAssignmentViewModel
+{
+    public int Id { get; set; }
 
-    public string? TechnicalManagerName { get; set; }
+    public string Name { get; set; } = string.Empty;
 
-    public IReadOnlyCollection<EmployeeProjectItemViewModel> ActiveProjects { get; set; } = [];
+    public string TechnicalManagerName { get; set; } = string.Empty;
+
+    public string ForemanName { get; set; } = string.Empty;
 }
 
 public class EmployeeProjectItemViewModel
@@ -40,4 +45,10 @@ public class EmployeeProjectItemViewModel
     public string Name { get; set; } = string.Empty;
 
     public string ClientName { get; set; } = string.Empty;
+
+    public ProjectStatus Status { get; set; }
+
+    public bool IsTechnicalManager { get; set; }
+
+    public IReadOnlyCollection<string> CrewNames { get; set; } = [];
 }

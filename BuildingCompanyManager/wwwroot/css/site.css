@@ -201,6 +201,72 @@ body {
   border-left: 1px solid var(--app-line);
 }
 
+.employee-home-page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 4.5rem 1.5rem 5.5rem;
+}
+
+.employee-home-header {
+  max-width: 42rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--app-line);
+}
+
+.employee-home-header h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.employee-home-header > p:last-child {
+  margin: 0.75rem 0 0;
+  color: var(--app-muted);
+  font-size: 1rem;
+}
+
+.employee-home-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--app-line);
+  border-left: 1px solid var(--app-line);
+  background: var(--app-surface);
+}
+
+.employee-home-metrics > div {
+  display: flex;
+  min-height: 11rem;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.5rem;
+  border-right: 1px solid var(--app-line);
+  border-bottom: 1px solid var(--app-line);
+}
+
+.employee-home-metrics p,
+.employee-home-metrics span {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
+.employee-home-metrics p {
+  font-weight: 700;
+}
+
+.employee-home-metrics strong {
+  margin: 0.75rem 0 0.5rem;
+  color: var(--app-ink);
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.employee-home-hours-link {
+  margin-top: 2rem;
+}
+
 .app-footer {
   padding: 1.5rem 0;
   background: var(--app-canvas);
@@ -686,6 +752,193 @@ body {
   flex: 0 0 auto;
 }
 
+.attendance-date-form {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.attendance-date-form label {
+  color: var(--app-ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.attendance-date-form input {
+  min-height: 2.875rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.375rem;
+  background: var(--app-surface);
+  color: var(--app-ink);
+}
+
+.attendance-context {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0 0 1.5rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--app-line);
+  border-bottom: 1px solid var(--app-line);
+}
+
+.attendance-context dt {
+  color: var(--app-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.attendance-context dd {
+  margin: 0.25rem 0 0;
+}
+
+.employee-filter-form {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.375rem;
+  background: var(--app-canvas);
+}
+
+.employee-filter-form > div {
+  display: grid;
+  gap: 0.375rem;
+  min-width: 13rem;
+}
+
+.employee-filter-form label {
+  color: var(--app-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.employee-filter-form select {
+  min-height: 2.875rem;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.375rem;
+  background: var(--app-surface);
+  color: var(--app-ink);
+}
+
+.pagination-nav {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  color: var(--app-muted);
+  font-size: 0.9375rem;
+}
+
+.pagination-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.attendance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.attendance-month-total {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 8rem;
+  text-align: right;
+}
+
+.attendance-month-total span {
+  color: var(--app-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.attendance-month-total strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.attendance-month-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2rem 0 1rem;
+  color: var(--app-ink);
+  font-weight: 700;
+}
+
+.attendance-calendar {
+  border: 1px solid var(--app-line);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.attendance-calendar-weekdays,
+.attendance-calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.attendance-calendar-weekdays {
+  border-bottom: 1px solid var(--app-line);
+  background: var(--app-canvas);
+}
+
+.attendance-calendar-weekdays span {
+  padding: 0.75rem;
+  color: var(--app-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.attendance-calendar-day {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 6.5rem;
+  padding: 0.75rem;
+  border-right: 1px solid var(--app-line);
+  border-bottom: 1px solid var(--app-line);
+  background: var(--app-surface);
+}
+
+.attendance-calendar-day:nth-child(7n) {
+  border-right: 0;
+}
+
+.attendance-calendar-day:nth-last-child(-n + 7) {
+  border-bottom: 0;
+}
+
+.attendance-calendar-day span {
+  color: var(--app-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.attendance-calendar-day strong {
+  color: var(--app-ink);
+  font-size: 1.25rem;
+}
+
+.attendance-calendar-day-empty {
+  background: var(--app-canvas);
+}
+
+.attendance-calendar-day-today {
+  box-shadow: inset 0 0 0 2px var(--app-accent);
+}
+
 .btn:focus-visible,
 .nav-link:focus-visible,
 .navbar-toggler:focus-visible,
@@ -768,13 +1021,15 @@ body {
   color: var(--app-muted);
 }
 
-.employee-project-list {
+.employee-project-list,
+.employee-crew-list {
   margin: 1.25rem 0 0;
   padding: 0;
   list-style: none;
 }
 
-.employee-project-list li {
+.employee-project-list li,
+.employee-crew-list li {
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--app-line);
 }
@@ -789,7 +1044,8 @@ body {
   text-decoration: underline;
 }
 
-.employee-project-list span {
+.employee-project-list span,
+.employee-crew-list span {
   display: block;
   margin-top: 0.25rem;
   color: var(--app-muted);
@@ -804,6 +1060,10 @@ body {
   .employee-profile-header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .attendance-month-total {
+    text-align: left;
   }
 
   .employee-profile-grid,
@@ -861,6 +1121,22 @@ body {
     border-bottom: 1px solid var(--app-line);
   }
 
+  .employee-home-page {
+    padding-top: 2.5rem;
+  }
+
+  .employee-home-header h1 {
+    font-size: 2.25rem;
+  }
+
+  .employee-home-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-home-metrics > div {
+    min-height: 0;
+  }
+
   .dashboard-page {
     padding-top: 2rem;
   }
@@ -908,6 +1184,46 @@ body {
 
   .worker-selection {
     grid-template-columns: 1fr;
+  }
+
+  .employee-filter-form {
+    align-items: stretch;
+  }
+
+  .employee-filter-form > div {
+    min-width: 100%;
+  }
+
+  .employee-filter-form .btn {
+    width: 100%;
+  }
+
+  .pagination-nav {
+    justify-content: space-between;
+  }
+
+  .attendance-context {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-month-navigation {
+    align-items: stretch;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .attendance-calendar-weekdays span {
+    padding: 0.5rem 0.125rem;
+    font-size: 0.6875rem;
+  }
+
+  .attendance-calendar-day {
+    min-height: 4.5rem;
+    padding: 0.5rem;
+  }
+
+  .attendance-calendar-day strong {
+    font-size: 0.875rem;
   }
 
   .form-actions {

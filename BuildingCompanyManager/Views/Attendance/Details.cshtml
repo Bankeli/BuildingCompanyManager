@@ -1,0 +1,77 @@
+@model BuildingCompanyManager.Models.Attendance.AttendanceEmployeeDetailsViewModel
+
+@{
+    ViewData["Title"] = "Working hours";
+}
+
+<section class="employee-profile-page" aria-labelledby="attendance-details-title">
+    <header class="employee-profile-header">
+        <div>
+            @if (Model.CanReturnToAttendance)
+            {
+                <a class="back-link" asp-action="Index">Back to attendance</a>
+            }
+            else
+            {
+                <a class="back-link" asp-controller="Home" asp-action="Index">Back to home</a>
+            }
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="attendance-details-title">@Model.EmployeeName</h1>
+            <p>Working hours for @Model.MonthName @Model.Year.</p>
+        </div>
+        <div class="attendance-month-total">
+            <span>Total hours</span>
+            <strong>@Model.TotalWorkedHours.ToString("0.##")</strong>
+        </div>
+    </header>
+
+    <nav class="attendance-month-navigation" aria-label="Attendance month navigation">
+        @if (Model.CanNavigateToPreviousMonth)
+        {
+            var previousMonth = new DateOnly(Model.Year, Model.Month, 1).AddMonths(-1);
+            <a class="btn app-btn-secondary" asp-action="Details" asp-route-employeeId="@Model.EmployeeId" asp-route-year="@previousMonth.Year" asp-route-month="@previousMonth.Month">Previous month</a>
+        }
+        else
+        {
+            <span class="btn app-btn-secondary pagination-disabled" aria-disabled="true">Previous month</span>
+        }
+        <span>@Model.MonthName @Model.Year</span>
+        @if (Model.CanNavigateToNextMonth)
+        {
+            var nextMonth = new DateOnly(Model.Year, Model.Month, 1).AddMonths(1);
+            <a class="btn app-btn-secondary" asp-action="Details" asp-route-employeeId="@Model.EmployeeId" asp-route-year="@nextMonth.Year" asp-route-month="@nextMonth.Month">Next month</a>
+        }
+        else
+        {
+            <span class="btn app-btn-secondary pagination-disabled" aria-disabled="true">Next month</span>
+        }
+    </nav>
+
+    <section class="attendance-calendar" aria-label="Working hours calendar">
+        <div class="attendance-calendar-weekdays" aria-hidden="true">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+        </div>
+        <div class="attendance-calendar-days">
+            @foreach (var day in Model.CalendarDays)
+            {
+                @if (day.Date is null)
+                {
+                    <div class="attendance-calendar-day attendance-calendar-day-empty" aria-hidden="true"></div>
+                }
+                else
+                {
+                    <div class="attendance-calendar-day @(day.IsToday ? "attendance-calendar-day-today" : string.Empty)">
+                        <span>@day.Date.Value.Day</span>
+                        <strong>@day.WorkedHours!.Value.ToString("0.##") h</strong>
+                    </div>
+                }
+            }
+        </div>
+    </section>
+</section>

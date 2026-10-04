@@ -156,6 +156,12 @@ public class ApplicationDbContext : IdentityDbContext
                     DatabaseConstants.AttendanceExtraHoursConstraintName,
                     DatabaseConstants.AttendanceExtraHoursConstraintSql);
                 table.HasCheckConstraint(
+                    DatabaseConstants.AttendanceWorkedHoursConstraintName,
+                    DatabaseConstants.AttendanceWorkedHoursConstraintSql);
+                table.HasCheckConstraint(
+                    DatabaseConstants.AttendanceExtraHoursRelationConstraintName,
+                    DatabaseConstants.AttendanceExtraHoursRelationConstraintSql);
+                table.HasCheckConstraint(
                     DatabaseConstants.AttendanceBonusAmountConstraintName,
                     DatabaseConstants.AttendanceBonusAmountConstraintSql);
             });
@@ -168,9 +174,9 @@ public class ApplicationDbContext : IdentityDbContext
                 .HasForeignKey(record => record.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(record => record.MarkedByForeman)
-                .WithMany(employee => employee.MarkedAttendanceRecords)
-                .HasForeignKey(record => record.MarkedByForemanId)
+            entity.HasOne(record => record.RecordedByEmployee)
+                .WithMany(employee => employee.RecordedAttendanceRecords)
+                .HasForeignKey(record => record.RecordedByEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(record => record.ProjectCrew)

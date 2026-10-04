@@ -1,0 +1,99 @@
+@using BuildingCompanyManager.Data.Enums
+@model BuildingCompanyManager.Models.Attendance.AttendanceIndexViewModel
+
+@{
+    ViewData["Title"] = "Attendance";
+}
+
+@functions {
+    private static string GetRoleName(EmployeeRole role) => role switch
+    {
+        EmployeeRole.TechnicalManager => "Technical manager",
+        EmployeeRole.Foreman => "Foreman",
+        EmployeeRole.Worker => "Worker",
+        _ => "Employee"
+    };
+}
+
+<section class="management-page" aria-labelledby="attendance-title">
+    <header class="management-header">
+        <div>
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="attendance-title">Attendance</h1>
+            <p>Review the working hours for the people available to you.</p>
+        </div>
+    </header>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success management-notice" role="status">@successMessage</div>
+    }
+
+    <section class="management-section" aria-labelledby="attendance-date-title">
+        <div class="management-section-heading">
+            <h2 id="attendance-date-title">Working day</h2>
+        </div>
+        <form method="get" class="attendance-date-form">
+            <label for="workDate">Work date</label>
+            <input id="workDate" name="workDate" type="date" value="@Model.WorkDate.ToString("yyyy-MM-dd")" />
+            <button class="btn app-btn-secondary" type="submit">Show day</button>
+        </form>
+    </section>
+
+    <section class="management-section" aria-labelledby="daily-hours-title">
+        <div class="management-section-heading">
+            <h2 id="daily-hours-title">Daily working hours</h2>
+            <span>@Model.Employees.Count people</span>
+        </div>
+
+        @if (!Model.CanRecordHours)
+        {
+            <p class="management-empty-state">Only the owner can add or edit working hours for this date.</p>
+        }
+
+        @if (Model.Employees.Count == 0)
+        {
+            <p class="management-empty-state">There are no employees available for this date.</p>
+        }
+        else
+        {
+            <div class="management-table-wrap">
+                <table class="management-table attendance-records-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Worked</th>
+                            <th scope="col">Extra</th>
+                            <th scope="col">Bonus</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var employee in Model.Employees)
+                    {
+                        <tr>
+                            <td>@employee.FullName</td>
+                            <td>@GetRoleName(employee.Role)</td>
+                            <td>@employee.WorkedHours.ToString("0.##")</td>
+                            <td>@employee.ExtraHours.ToString("0.##")</td>
+                            <td>@employee.BonusAmount.ToString("F2")</td>
+                            <td class="attendance-actions">
+                                <a class="table-action-link" asp-action="Details" asp-route-employeeId="@employee.EmployeeId">View</a>
+                                @if (employee.AttendanceRecordId is null && Model.CanRecordHours)
+                                {
+                                    <a class="table-action-link" asp-action="Create" asp-route-employeeId="@employee.EmployeeId" asp-route-workDate="@Model.WorkDate.ToString("yyyy-MM-dd")">Record hours</a>
+                                }
+                                else if (employee.CanEdit)
+                                {
+                                    <a class="table-action-link" asp-action="Edit" asp-route-id="@employee.AttendanceRecordId">Edit</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</section>

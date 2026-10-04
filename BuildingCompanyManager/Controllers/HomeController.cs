@@ -2,6 +2,7 @@ using System.Diagnostics;
 using BuildingCompanyManager.Data;
 using BuildingCompanyManager.Data.Enums;
 using BuildingCompanyManager.Models;
+using BuildingCompanyManager.Models.Home;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,16 +29,65 @@ namespace BuildingCompanyManager.Controllers
         {
             var userId = userManager.GetUserId(User);
 
-            if (!string.IsNullOrWhiteSpace(userId) &&
-                await dbContext.Employees.AsNoTracking().AnyAsync(employee =>
-                    employee.UserId == userId &&
-                    employee.IsActive &&
-                    employee.Role == EmployeeRole.Owner))
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return View();
+            }
+
+            var employee = await dbContext.Employees
+                .AsNoTracking()
+                .Where(item => item.UserId == userId && item.IsActive)
+                .Select(item => new
+                {
+                    item.Id,
+                    item.FirstName,
+                    CompanyName = item.Company.Name,
+                    item.JobTitle,
+                    item.Role,
+                    item.DailyRate
+                })
+                .SingleOrDefaultAsync();
+
+            if (employee is null)
+            {
+                return View();
+            }
+
+            if (employee.Role == EmployeeRole.Owner)
             {
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            return View();
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var monthStart = new DateOnly(today.Year, today.Month, 1);
+            var monthEnd = monthStart.AddMonths(1);
+
+            var monthlyTotals = await dbContext.AttendanceRecords
+                .AsNoTracking()
+                .Where(record =>
+                    record.EmployeeId == employee.Id &&
+                    record.WorkDate >= monthStart &&
+                    record.WorkDate < monthEnd)
+                .GroupBy(_ => 1)
+                .Select(group => new
+                {
+                    WorkedHours = group.Sum(record => record.WorkedHours),
+                    Earnings = group.Sum(record =>
+                        (record.WorkedHours / 8m * record.DailyRateSnapshot) + record.BonusAmount)
+                })
+                .SingleOrDefaultAsync();
+
+            return View(new EmployeeHomeViewModel
+            {
+                EmployeeId = employee.Id,
+                FirstName = employee.FirstName,
+                CompanyName = employee.CompanyName,
+                JobTitle = employee.JobTitle,
+                Role = employee.Role,
+                DailyRate = employee.DailyRate ?? 0m,
+                MonthlyWorkedHours = monthlyTotals?.WorkedHours ?? 0m,
+                MonthlyEarnings = monthlyTotals?.Earnings ?? 0m
+            });
         }
 
         public IActionResult Privacy()

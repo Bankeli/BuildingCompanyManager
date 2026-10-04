@@ -4,6 +4,7 @@ using BuildingCompanyManager.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BuildingCompanyManager.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261004120146_AddAttendanceWorkingHours")]
+    partial class AddAttendanceWorkingHours
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,8 +84,6 @@ namespace BuildingCompanyManager.Data.Migrations
                             t.HasCheckConstraint("CK_AttendanceRecords_BonusAmount", "[BonusAmount] >= 0");
 
                             t.HasCheckConstraint("CK_AttendanceRecords_ExtraHours", "[ExtraHours] >= 0 AND [ExtraHours] <= 24");
-
-                            t.HasCheckConstraint("CK_AttendanceRecords_ExtraHoursWithinWorkedHours", "[ExtraHours] <= [WorkedHours]");
 
                             t.HasCheckConstraint("CK_AttendanceRecords_WorkedHours", "[WorkedHours] >= 0 AND [WorkedHours] <= 24");
                         });

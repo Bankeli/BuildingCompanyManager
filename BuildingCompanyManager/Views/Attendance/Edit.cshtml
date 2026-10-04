@@ -1,0 +1,71 @@
+@model BuildingCompanyManager.Models.Attendance.AttendanceEditInputModel
+
+@{
+    ViewData["Title"] = "Edit working hours";
+}
+
+<section class="form-page" aria-labelledby="edit-hours-title">
+    <header class="form-page-header">
+        <a class="back-link" asp-action="Index" asp-route-workDate="@Model.WorkDate.ToString("yyyy-MM-dd")">Back to attendance</a>
+        <h1 id="edit-hours-title">Edit working hours</h1>
+        <p>Update the recorded hours without changing the worker, project, crew, or date.</p>
+    </header>
+
+    <dl class="attendance-context">
+        <div>
+            <dt>Worker</dt>
+            <dd>@Model.WorkerName</dd>
+        </div>
+        <div>
+            <dt>Project</dt>
+            <dd>@Model.ProjectName</dd>
+        </div>
+        <div>
+            <dt>Crew</dt>
+            <dd>@Model.CrewName</dd>
+        </div>
+        <div>
+            <dt>Work date</dt>
+            <dd>@Model.WorkDate.ToString("dd MMM yyyy")</dd>
+        </div>
+    </dl>
+
+    <form asp-action="Edit" method="post" class="app-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input asp-for="Id" type="hidden" />
+
+        <div class="form-row-grid">
+            <div class="form-group">
+                <label asp-for="WorkedHours"></label>
+                <input asp-for="WorkedHours" class="form-control" type="number" min="0" max="24" step="0.25" />
+                <span asp-validation-for="WorkedHours" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExtraHours"></label>
+                <input asp-for="ExtraHours" class="form-control" type="number" min="0" max="24" step="0.25" />
+                <span asp-validation-for="ExtraHours" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="BonusAmount"></label>
+            <input asp-for="BonusAmount" class="form-control" type="number" min="0" step="0.01" />
+            <span asp-validation-for="BonusAmount" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ForemanComment"></label>
+            <textarea asp-for="ForemanComment" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="ForemanComment" class="text-danger"></span>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn app-btn-secondary" asp-action="Index" asp-route-workDate="@Model.WorkDate.ToString("yyyy-MM-dd")">Cancel</a>
+            <button class="btn app-btn-primary" type="submit">Save changes</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

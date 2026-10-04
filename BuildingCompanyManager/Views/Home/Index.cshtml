@@ -1,7 +1,51 @@
+@using BuildingCompanyManager.Data.Enums
+@model BuildingCompanyManager.Models.Home.EmployeeHomeViewModel?
+
 @{
     ViewData["Title"] = "Builder Manager";
 }
 
+@functions {
+    private static string GetRoleName(EmployeeRole role) => role switch
+    {
+        EmployeeRole.TechnicalManager => "Technical manager",
+        EmployeeRole.Foreman => "Foreman",
+        EmployeeRole.Worker => "Worker",
+        _ => "Employee"
+    };
+}
+
+@if (Model is not null)
+{
+    <section class="employee-home-page" aria-labelledby="employee-home-title">
+        <header class="employee-home-header">
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="employee-home-title">Hello, @Model.FirstName</h1>
+            <p>@GetRoleName(Model.Role) · @Model.JobTitle</p>
+        </header>
+
+        <section class="employee-home-metrics" aria-label="This month">
+            <div>
+                <p>Worked hours this month</p>
+                <strong>@Model.MonthlyWorkedHours.ToString("0.##")</strong>
+            </div>
+            <div>
+                <p>Daily rate</p>
+                <strong>@Model.DailyRate.ToString("F2")</strong>
+                <span>Based on 8 working hours</span>
+            </div>
+            <div>
+                <p>Earned this month</p>
+                <strong>@Model.MonthlyEarnings.ToString("F2")</strong>
+                <span>Including recorded bonuses</span>
+            </div>
+        </section>
+
+        <a class="btn app-btn-primary employee-home-hours-link" asp-controller="Attendance" asp-action="Details" asp-route-employeeId="@Model.EmployeeId">View working hours</a>
+    </section>
+}
+else
+{
 <div class="home-page">
     @if (TempData["SuccessMessage"] is string successMessage)
     {
@@ -39,3 +83,4 @@
         </div>
     </section>
 </div>
+}
