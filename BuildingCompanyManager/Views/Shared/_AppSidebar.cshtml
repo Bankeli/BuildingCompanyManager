@@ -1,0 +1,88 @@
+@using BuildingCompanyManager.Data
+@using BuildingCompanyManager.Data.Enums
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    var userId = UserManager.GetUserId(User);
+    var employee = userId is null
+        ? null
+        : await DbContext.Employees
+            .AsNoTracking()
+            .Where(item => item.UserId == userId && item.IsActive)
+            .Select(item => new
+            {
+                item.Id,
+                item.FirstName,
+                item.LastName,
+                CompanyName = item.Company.Name,
+                item.Role
+            })
+            .SingleOrDefaultAsync();
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
+    var homeController = employee?.Role == EmployeeRole.Owner ? "Dashboard" : "Home";
+    var homeLabel = employee?.Role == EmployeeRole.Owner ? "Dashboard" : "Home";
+    var initials = employee is null
+        ? string.Empty
+        : string.Concat(employee.FirstName.FirstOrDefault(), employee.LastName.FirstOrDefault()).ToUpperInvariant();
+    var roleName = employee?.Role switch
+    {
+        EmployeeRole.Owner => "Owner",
+        EmployeeRole.TechnicalManager => "Technical manager",
+        EmployeeRole.Foreman => "Foreman",
+        EmployeeRole.Worker => "Worker",
+        _ => "Account"
+    };
+
+    string ActiveClass(string controller) => string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+        ? "app-sidebar-link-active"
+        : string.Empty;
+
+    string AccountActiveClass() => currentPage?.Contains("/Account/Manage/", StringComparison.OrdinalIgnoreCase) == true
+        ? "app-sidebar-link-active"
+        : string.Empty;
+}
+
+<div class="app-sidebar-content">
+    <a class="app-sidebar-brand" asp-controller="@homeController" asp-action="Index">
+        <span class="app-sidebar-brand-mark">BM</span>
+        <span>@(employee?.CompanyName ?? "Builder Manager")</span>
+    </a>
+
+    <nav class="app-sidebar-nav" aria-label="Main navigation">
+        <a class="app-sidebar-link @ActiveClass(homeController)" asp-controller="@homeController" asp-action="Index">@homeLabel</a>
+
+        @if (employee?.Role == EmployeeRole.Owner)
+        {
+            <a class="app-sidebar-link @ActiveClass("Employees")" asp-controller="Employees" asp-action="Index">Employees</a>
+            <a class="app-sidebar-link @ActiveClass("Crews")" asp-controller="Crews" asp-action="Index">Crews</a>
+            <a class="app-sidebar-link @ActiveClass("Projects")" asp-controller="Projects" asp-action="Index">Projects</a>
+        }
+
+        @if (employee?.Role is EmployeeRole.Owner or EmployeeRole.TechnicalManager or EmployeeRole.Foreman)
+        {
+            <a class="app-sidebar-link @ActiveClass("Attendance")" asp-controller="Attendance" asp-action="Index">Attendance</a>
+        }
+        else if (employee?.Role == EmployeeRole.Worker)
+        {
+            <a class="app-sidebar-link @ActiveClass("Attendance")" asp-controller="Attendance" asp-action="Details" asp-route-employeeId="@employee.Id">My working hours</a>
+        }
+    </nav>
+
+    <div class="app-sidebar-account">
+        <a class="app-sidebar-account-link @AccountActiveClass()" asp-area="Identity" asp-page="/Account/Manage/Index">
+            <span class="app-sidebar-avatar" aria-hidden="true">@initials</span>
+            <span>
+                <strong>@(employee is null ? User.Identity?.Name : $"{employee.FirstName} {employee.LastName}")</strong>
+                <small>@roleName</small>
+            </span>
+        </a>
+        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button type="submit" class="app-sidebar-signout">Sign out</button>
+        </form>
+    </div>
+</div>

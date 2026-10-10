@@ -1,11 +1,14 @@
 :root {
-  --app-ink: #1f2924;
-  --app-muted: #64716a;
+  --app-ink: #171b27;
+  --app-muted: #70788c;
   --app-surface: #ffffff;
-  --app-canvas: #f2f4f1;
-  --app-accent: #25735b;
-  --app-accent-dark: #185340;
-  --app-line: #d8ddd7;
+  --app-canvas: #f5f6fb;
+  --app-accent: #4655e8;
+  --app-accent-dark: #3543d5;
+  --app-line: #e4e7f0;
+  --app-sidebar: #111521;
+  --app-sidebar-surface: #1d2437;
+  --app-sidebar-text: #b5bdd0;
 }
 
 html {
@@ -17,6 +20,350 @@ body {
   margin: 0;
   background: var(--app-canvas);
   color: var(--app-ink);
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100svh;
+  background: var(--app-canvas);
+}
+
+.app-sidebar {
+  width: 17.75rem;
+  flex: 0 0 17.75rem;
+  background: var(--app-sidebar);
+  color: var(--app-sidebar-text);
+}
+
+.app-sidebar-content {
+  position: sticky;
+  top: 0;
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  padding: 1.5rem 1.25rem;
+}
+
+.app-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  margin: 0 0 2rem;
+  color: #ffffff;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.app-sidebar-brand:hover,
+.app-sidebar-brand:focus {
+  color: #ffffff;
+}
+
+.app-sidebar-brand-mark {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.625rem;
+  background: var(--app-accent);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.app-sidebar-nav {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.app-sidebar-link {
+  display: flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.625rem;
+  color: var(--app-sidebar-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-sidebar-link:hover,
+.app-sidebar-link:focus {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.app-sidebar-link-active {
+  background: var(--app-sidebar-surface);
+  color: #ffffff;
+}
+
+.app-sidebar-account {
+  margin-top: auto;
+  padding-top: 1.5rem;
+}
+
+.app-sidebar-account-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--app-sidebar-surface);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.app-sidebar-account-link:hover,
+.app-sidebar-account-link:focus {
+  color: #ffffff;
+}
+
+.app-sidebar-avatar {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #f0aa3a;
+  color: #171b27;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.app-sidebar-account-link span:last-child {
+  display: grid;
+  min-width: 0;
+}
+
+.app-sidebar-account-link strong,
+.app-sidebar-account-link small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-sidebar-account-link strong {
+  font-size: 0.875rem;
+}
+
+.app-sidebar-account-link small {
+  color: var(--app-sidebar-text);
+  font-size: 0.75rem;
+}
+
+.app-sidebar-account form {
+  margin: 0.625rem 0 0;
+}
+
+.app-sidebar-signout {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--app-sidebar-text);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.app-sidebar-signout:hover,
+.app-sidebar-signout:focus {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.app-main {
+  width: min(100%, 112rem);
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.identity-area main {
+  min-height: calc(100svh - 13.5rem);
+  padding: 3.5rem 0 4.5rem;
+}
+
+.identity-page {
+  max-width: 29rem;
+  margin: 0 auto;
+}
+
+.identity-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.identity-eyebrow {
+  margin: 0 0 0.625rem;
+  color: var(--app-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.identity-page h1,
+.identity-area main > h1 {
+  margin: 0;
+  color: var(--app-ink);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.identity-page-header > p:last-child,
+.identity-area main > h1 + p,
+.identity-area main > h1 + h2 {
+  margin: 0.625rem 0 0;
+  color: var(--app-muted);
+  font-size: 1rem;
+}
+
+.identity-form,
+.identity-area main form:not(.identity-form) {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.5rem;
+  background: var(--app-surface);
+}
+
+.identity-area main > .row {
+  max-width: 46rem;
+  margin: 1.5rem auto 0;
+}
+
+.identity-area main > .row > [class*="col-"] {
+  width: 100%;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.identity-area main .form-floating > .form-control,
+.identity-area main .form-control {
+  min-height: 3.25rem;
+  border-color: var(--app-line);
+  border-radius: 0.375rem;
+  color: var(--app-ink);
+}
+
+.identity-area main .form-control:focus {
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 0.2rem rgba(37, 115, 91, 0.14);
+}
+
+.identity-area main .form-floating > label {
+  color: var(--app-muted);
+}
+
+.identity-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--app-ink);
+  font-size: 0.875rem;
+}
+
+.identity-checkbox .form-check-input {
+  margin: 0;
+}
+
+.identity-submit,
+.identity-area main .btn-primary {
+  width: 100%;
+}
+
+.identity-validation,
+.identity-field-validation,
+.identity-area main .validation-summary-errors,
+.identity-area main .field-validation-error {
+  color: #a33e2d;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.identity-validation ul,
+.identity-area main .validation-summary-errors ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.identity-links {
+  display: grid;
+  gap: 0.625rem;
+  padding-top: 0.25rem;
+}
+
+.identity-links a,
+.identity-area main a:not(.nav-link) {
+  color: var(--app-accent-dark);
+  font-weight: 700;
+}
+
+.identity-links a:hover,
+.identity-links a:focus,
+.identity-area main a:not(.nav-link):hover,
+.identity-area main a:not(.nav-link):focus {
+  color: var(--app-accent);
+}
+
+.identity-area main .nav-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 1.25rem 0;
+}
+
+.identity-area main .nav-pills .nav-link {
+  border-radius: 0.375rem;
+  color: var(--app-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.identity-area main .nav-pills .nav-link.active,
+.identity-area main .nav-pills .show > .nav-link {
+  background: var(--app-accent);
+  color: #ffffff;
+}
+
+.identity-area main .row:has(.nav-pills) {
+  display: grid;
+  grid-template-columns: minmax(10.5rem, 0.45fr) minmax(0, 1fr);
+  gap: 2rem;
+  max-width: 52rem;
+  margin: 1.5rem auto 0;
+}
+
+.identity-area main .row:has(.nav-pills) > [class*="col-"] {
+  width: auto;
+  max-width: none;
+  margin: 0;
+}
+
+.identity-area main .row:has(.nav-pills) .nav-pills {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.identity-area main .row:has(.nav-pills) form {
+  max-width: none;
+}
+
+.identity-area main hr {
+  margin: 1.25rem 0;
+  border-color: var(--app-line);
+  opacity: 1;
 }
 
 .app-header {
@@ -265,6 +612,100 @@ body {
 
 .employee-home-hours-link {
   margin-top: 2rem;
+}
+
+.crew-overview {
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--app-line);
+}
+
+.crew-overview-header h2 {
+  margin: 0.375rem 0 0;
+  color: var(--app-ink);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.crew-overview-empty {
+  margin: 1.5rem 0 0;
+  color: var(--app-muted);
+}
+
+.crew-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.crew-card {
+  overflow: hidden;
+  border: 1px solid var(--app-line);
+  border-radius: 0.75rem;
+  background: var(--app-surface);
+}
+
+.crew-card > header,
+.crew-projects {
+  padding: 1.25rem;
+}
+
+.crew-card > header {
+  border-bottom: 1px solid var(--app-line);
+}
+
+.crew-card > header p,
+.crew-card > header span,
+.crew-projects > p,
+.crew-projects li span {
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
+.crew-card > header p {
+  margin: 0;
+  color: var(--app-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.crew-card > header h3 {
+  margin: 0.5rem 0 0.375rem;
+  color: var(--app-ink);
+  font-size: 1.25rem;
+}
+
+.crew-projects h4 {
+  margin: 0;
+  color: var(--app-ink);
+  font-size: 0.9375rem;
+}
+
+.crew-projects > p {
+  margin: 0.75rem 0 0;
+}
+
+.crew-projects ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crew-projects li {
+  display: grid;
+  gap: 0.125rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--app-line);
+}
+
+.crew-projects li strong {
+  color: var(--app-ink);
+  font-size: 0.9375rem;
 }
 
 .app-footer {
@@ -869,11 +1310,38 @@ body {
 .attendance-month-navigation {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
-  margin: 2rem 0 1rem;
+  margin: 2rem 0 1.25rem;
   color: var(--app-ink);
+}
+
+.attendance-month-button {
+  display: inline-grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid var(--app-line);
+  border-radius: 0.375rem;
+  background: var(--app-surface);
+  color: var(--app-ink);
+  font-size: 1.75rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.attendance-month-button:hover,
+.attendance-month-button:focus {
+  border-color: var(--app-accent);
+  color: var(--app-accent-dark);
+}
+
+.attendance-month-title {
+  min-width: 10.5rem;
+  color: var(--app-ink);
+  font-size: 1rem;
   font-weight: 700;
+  text-align: center;
 }
 
 .attendance-calendar {
@@ -901,11 +1369,14 @@ body {
   text-align: center;
 }
 
+.attendance-weekend-heading {
+  color: #8a918c !important;
+}
+
 .attendance-calendar-day {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 6.5rem;
+  min-height: 8.25rem;
   padding: 0.75rem;
   border-right: 1px solid var(--app-line);
   border-bottom: 1px solid var(--app-line);
@@ -920,15 +1391,30 @@ body {
   border-bottom: 0;
 }
 
-.attendance-calendar-day span {
+.attendance-calendar-day-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+
+.attendance-calendar-day time {
   color: var(--app-muted);
   font-size: 0.875rem;
   font-weight: 700;
 }
 
-.attendance-calendar-day strong {
+.attendance-calendar-hours {
+  margin-top: auto;
   color: var(--app-ink);
   font-size: 1.25rem;
+}
+
+.attendance-calendar-hours small,
+.attendance-month-total small {
+  color: var(--app-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
 }
 
 .attendance-calendar-day-empty {
@@ -936,7 +1422,47 @@ body {
 }
 
 .attendance-calendar-day-today {
+  background: #eff8f3;
   box-shadow: inset 0 0 0 2px var(--app-accent);
+}
+
+.attendance-calendar-day-weekend {
+  background: #fafbf9;
+}
+
+.attendance-today-label {
+  color: var(--app-accent-dark);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.attendance-calendar-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.attendance-bonus-flag,
+.attendance-comment-flag {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 1.25rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.attendance-bonus-flag {
+  background: #fff2cf;
+  color: #795300;
+}
+
+.attendance-comment-flag {
+  background: #e8f2ed;
+  color: var(--app-accent-dark);
 }
 
 .btn:focus-visible,
@@ -952,6 +1478,152 @@ body {
   max-width: 72rem;
   margin: 0 auto;
   padding: 3rem 1.5rem 4.5rem;
+}
+
+.attendance-details-page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4.5rem;
+}
+
+.attendance-details-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--app-line);
+}
+
+.attendance-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--app-accent-dark);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.attendance-back-link:hover,
+.attendance-back-link:focus {
+  color: var(--app-accent);
+  text-decoration: underline;
+}
+
+.attendance-employee-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.attendance-employee-avatar {
+  display: grid;
+  width: 3.75rem;
+  height: 3.75rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--app-accent-dark);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.attendance-company-name {
+  margin: 0 0 0.375rem;
+  color: var(--app-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.attendance-details-header h1 {
+  margin: 0;
+  color: var(--app-ink);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.attendance-details-subtitle {
+  margin: 0.375rem 0 0;
+  color: var(--app-muted);
+}
+
+.attendance-month-total {
+  min-width: 10rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.375rem;
+  background: var(--app-surface);
+}
+
+.attendance-day-insights {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--app-line);
+}
+
+.attendance-day-insights-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.attendance-day-insights-heading h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.attendance-day-insights-heading p {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
+.attendance-day-insights-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.attendance-day-insights-list li {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.375rem;
+  background: var(--app-surface);
+}
+
+.attendance-day-insights-list time {
+  color: var(--app-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.attendance-insight-bonus,
+.attendance-insight-comment {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.attendance-insight-bonus {
+  color: #795300;
+  font-weight: 700;
+}
+
+.attendance-insight-comment {
+  color: var(--app-ink);
 }
 
 .employee-profile-header {
@@ -978,6 +1650,14 @@ body {
 .employee-profile-header p {
   margin: 0.75rem 0 0;
   color: var(--app-muted);
+}
+
+.employee-profile-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .employee-profile-grid {
@@ -1053,8 +1733,58 @@ body {
 }
 
 @media (max-width: 767.98px) {
+  .identity-area main {
+    min-height: calc(100svh - 12rem);
+    padding: 2.5rem 0 3.5rem;
+  }
+
+  .identity-page {
+    max-width: none;
+  }
+
+  .identity-area main > .row {
+    margin-top: 1rem;
+  }
+
+  .identity-area main .row:has(.nav-pills) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .identity-area main .row:has(.nav-pills) .nav-pills {
+    display: flex;
+    margin-bottom: 0.5rem;
+  }
+
+  .identity-form,
+  .identity-area main form:not(.identity-form) {
+    padding: 1.25rem;
+  }
+
   .employee-profile-page {
     padding-top: 2rem;
+  }
+
+  .attendance-details-page {
+    padding-top: 2rem;
+  }
+
+  .attendance-details-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .attendance-month-total {
+    text-align: left;
+  }
+
+  .attendance-day-insights-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .attendance-day-insights-list {
+    grid-template-columns: 1fr;
   }
 
   .employee-profile-header {
@@ -1218,12 +1948,16 @@ body {
   }
 
   .attendance-calendar-day {
-    min-height: 4.5rem;
+    min-height: 5.5rem;
     padding: 0.5rem;
   }
 
   .attendance-calendar-day strong {
     font-size: 0.875rem;
+  }
+
+  .attendance-calendar-flags {
+    display: none;
   }
 
   .form-actions {
@@ -1236,5 +1970,311 @@ body {
 
   .app-footer .container {
     flex-direction: column;
+  }
+}
+
+/* Application workspace design */
+.app-shell .dashboard-page,
+.app-shell .management-page,
+.app-shell .form-page,
+.app-shell .employee-home-page,
+.app-shell .employee-profile-page,
+.app-shell .attendance-details-page {
+  max-width: 92rem;
+  margin: 0 auto;
+  padding: 3rem;
+}
+
+.app-shell .dashboard-header,
+.app-shell .management-header,
+.app-shell .employee-home-header,
+.app-shell .attendance-details-header,
+.app-shell .employee-profile-header {
+  border-color: var(--app-line);
+}
+
+.app-shell .dashboard-header,
+.app-shell .management-header {
+  padding-bottom: 1.75rem;
+}
+
+.app-shell .dashboard-company,
+.app-shell .management-company,
+.app-shell .attendance-company-name {
+  color: var(--app-accent);
+}
+
+.app-shell .dashboard-header h1,
+.app-shell .management-header h1,
+.app-shell .employee-home-header h1,
+.app-shell .attendance-details-header h1,
+.app-shell .employee-profile-header h1 {
+  letter-spacing: 0;
+}
+
+.app-shell .app-btn-primary,
+.app-shell .app-btn-secondary {
+  min-height: 2.75rem;
+  border-radius: 0.625rem;
+}
+
+.app-shell .app-btn-primary {
+  border-color: var(--app-accent);
+  background: var(--app-accent);
+}
+
+.app-shell .app-btn-primary:hover,
+.app-shell .app-btn-primary:focus {
+  border-color: var(--app-accent-dark);
+  background: var(--app-accent-dark);
+}
+
+.app-shell .app-btn-secondary {
+  border-color: var(--app-line);
+  background: var(--app-surface);
+  color: var(--app-ink);
+}
+
+.app-shell .app-btn-secondary:hover,
+.app-shell .app-btn-secondary:focus {
+  border-color: #cbd1ed;
+  background: #eef0ff;
+  color: var(--app-accent-dark);
+}
+
+.app-shell .dashboard-metrics {
+  gap: 1rem;
+}
+
+.app-shell .dashboard-metric {
+  min-height: 10rem;
+  border-color: var(--app-line);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(23, 27, 39, 0.02);
+}
+
+.app-shell .dashboard-metric:last-child {
+  border-color: var(--app-sidebar);
+  background: var(--app-sidebar);
+}
+
+.app-shell .dashboard-metric:last-child p,
+.app-shell .dashboard-metric:last-child strong {
+  color: #ffffff;
+}
+
+.app-shell .dashboard-content-grid {
+  grid-template-columns: minmax(0, 1.45fr) minmax(20rem, 0.8fr);
+  gap: 1.25rem;
+}
+
+.app-shell .dashboard-panel {
+  padding: 1.5rem;
+  border: 1px solid var(--app-line);
+  border-radius: 1rem;
+  background: var(--app-surface);
+}
+
+.app-shell .dashboard-panel-heading,
+.app-shell .dashboard-list li {
+  border-color: var(--app-line);
+}
+
+.app-shell .dashboard-quick-actions {
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border-color: var(--app-line);
+  border-radius: 1rem;
+  background: var(--app-surface);
+}
+
+.app-shell .dashboard-quick-actions a,
+.app-shell .dashboard-panel-heading a,
+.app-shell .dashboard-list a,
+.app-shell .table-action-link,
+.app-shell .back-link,
+.app-shell .table-action-button {
+  color: var(--app-accent-dark);
+}
+
+.app-shell .dashboard-quick-actions a:hover,
+.app-shell .dashboard-panel-heading a:hover,
+.app-shell .dashboard-list a:hover,
+.app-shell .table-action-link:hover,
+.app-shell .back-link:hover,
+.app-shell .table-action-button:hover {
+  color: var(--app-accent);
+}
+
+.app-shell .management-section {
+  margin-top: 2rem;
+}
+
+.app-shell .management-table-wrap,
+.app-shell .employee-filter-form,
+.app-shell .attendance-date-form,
+.app-shell .app-form,
+.app-shell .new-employee-credentials {
+  border-color: var(--app-line);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(23, 27, 39, 0.02);
+}
+
+.app-shell .management-table-wrap,
+.app-shell .app-form {
+  background: var(--app-surface);
+}
+
+.app-shell .management-table th,
+.app-shell .management-table td,
+.app-shell .management-table tr:last-child td,
+.app-shell .management-table-wrap,
+.app-shell .attendance-context,
+.app-shell .management-section-heading {
+  border-color: var(--app-line);
+}
+
+.app-shell .management-table th {
+  background: #fafbfe;
+  color: var(--app-muted);
+}
+
+.app-shell .employee-filter-form,
+.app-shell .attendance-date-form {
+  padding: 1rem;
+  background: var(--app-surface);
+}
+
+.app-shell .employee-filter-form select,
+.app-shell .attendance-date-form input,
+.app-shell .form-control,
+.app-shell .form-select {
+  border-color: var(--app-line);
+  border-radius: 0.5rem;
+}
+
+.app-shell .employee-filter-form select:focus,
+.app-shell .attendance-date-form input:focus,
+.app-shell .form-control:focus,
+.app-shell .form-select:focus {
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 0.2rem rgba(70, 85, 232, 0.12);
+}
+
+.app-shell .status-label-active {
+  background: #e8ebff;
+  color: #3543d5;
+}
+
+.app-shell .status-label-inactive {
+  background: #f0f1f5;
+  color: #6e7482;
+}
+
+.app-shell .employee-home-metrics,
+.app-shell .employee-home-metrics > div {
+  border-color: var(--app-line);
+}
+
+.app-shell .attendance-calendar,
+.app-shell .attendance-month-total,
+.app-shell .attendance-day-insights-list li {
+  border-color: var(--app-line);
+  border-radius: 1rem;
+}
+
+.app-shell .attendance-calendar {
+  border-radius: 1rem;
+}
+
+.app-shell .attendance-calendar-day,
+.app-shell .attendance-calendar-weekdays,
+.app-shell .attendance-calendar-weekdays span {
+  border-color: var(--app-line);
+}
+
+.app-shell .attendance-calendar-day-today {
+  background: #eef0ff;
+  box-shadow: inset 0 0 0 2px var(--app-accent);
+}
+
+.app-shell .attendance-employee-avatar,
+.app-shell .attendance-month-button:hover,
+.app-shell .attendance-month-button:focus {
+  border-color: var(--app-accent);
+  background: var(--app-accent);
+  color: #ffffff;
+}
+
+.app-shell .attendance-comment-flag {
+  background: #e8ebff;
+  color: var(--app-accent-dark);
+}
+
+@media (max-width: 991.98px) {
+  .app-shell {
+    display: block;
+  }
+
+  .app-sidebar {
+    width: auto;
+    min-height: auto;
+  }
+
+  .app-sidebar-content {
+    min-height: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .app-sidebar-brand {
+    margin: 0 0 0.75rem;
+  }
+
+  .app-sidebar-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.375rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .app-sidebar-link {
+    flex: 0 0 auto;
+    min-height: 2.5rem;
+  }
+
+  .app-sidebar-account {
+    display: none;
+  }
+
+  .app-shell .dashboard-page,
+  .app-shell .management-page,
+  .app-shell .form-page,
+  .app-shell .employee-home-page,
+  .app-shell .employee-profile-page,
+  .app-shell .attendance-details-page {
+    padding: 2rem 1.5rem 3.5rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .crew-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell .dashboard-page,
+  .app-shell .management-page,
+  .app-shell .form-page,
+  .app-shell .employee-home-page,
+  .app-shell .employee-profile-page,
+  .app-shell .attendance-details-page {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .app-shell .dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app-shell .dashboard-content-grid {
+    grid-template-columns: 1fr;
   }
 }

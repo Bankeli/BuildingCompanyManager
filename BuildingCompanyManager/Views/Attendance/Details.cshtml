@@ -4,24 +4,30 @@
     ViewData["Title"] = "Working hours";
 }
 
-<section class="employee-profile-page" aria-labelledby="attendance-details-title">
-    <header class="employee-profile-header">
-        <div>
+<section class="attendance-details-page" aria-labelledby="attendance-details-title">
+    <header class="attendance-details-header">
+        <div class="attendance-details-identity">
             @if (Model.CanReturnToAttendance)
             {
-                <a class="back-link" asp-action="Index">Back to attendance</a>
+                <a class="attendance-back-link" asp-action="Index"><span aria-hidden="true">&larr;</span> Back to attendance</a>
             }
             else
             {
-                <a class="back-link" asp-controller="Home" asp-action="Index">Back to home</a>
+                <a class="attendance-back-link" asp-controller="Home" asp-action="Index"><span aria-hidden="true">&larr;</span> Back to home</a>
             }
-            <p class="management-company">@Model.CompanyName</p>
-            <h1 id="attendance-details-title">@Model.EmployeeName</h1>
-            <p>Working hours for @Model.MonthName @Model.Year.</p>
+
+            <div class="attendance-employee-summary">
+                <div class="attendance-employee-avatar" aria-hidden="true">@Model.EmployeeInitials</div>
+                <div>
+                    <p class="attendance-company-name">@Model.CompanyName</p>
+                    <h1 id="attendance-details-title">@Model.EmployeeName</h1>
+                    <p class="attendance-details-subtitle">Monthly working hours overview</p>
+                </div>
+            </div>
         </div>
         <div class="attendance-month-total">
-            <span>Total hours</span>
-            <strong>@Model.TotalWorkedHours.ToString("0.##")</strong>
+            <span>Total this month</span>
+            <strong>@Model.TotalWorkedHours.ToString("0.##") <small>h</small></strong>
         </div>
     </header>
 
@@ -29,21 +35,21 @@
         @if (Model.CanNavigateToPreviousMonth)
         {
             var previousMonth = new DateOnly(Model.Year, Model.Month, 1).AddMonths(-1);
-            <a class="btn app-btn-secondary" asp-action="Details" asp-route-employeeId="@Model.EmployeeId" asp-route-year="@previousMonth.Year" asp-route-month="@previousMonth.Month">Previous month</a>
+            <a class="attendance-month-button" asp-action="Details" asp-route-employeeId="@Model.EmployeeId" asp-route-year="@previousMonth.Year" asp-route-month="@previousMonth.Month" aria-label="View previous month">&lsaquo;</a>
         }
         else
         {
-            <span class="btn app-btn-secondary pagination-disabled" aria-disabled="true">Previous month</span>
+            <span class="attendance-month-button pagination-disabled" aria-disabled="true">&lsaquo;</span>
         }
-        <span>@Model.MonthName @Model.Year</span>
+        <span class="attendance-month-title">@Model.MonthName @Model.Year</span>
         @if (Model.CanNavigateToNextMonth)
         {
             var nextMonth = new DateOnly(Model.Year, Model.Month, 1).AddMonths(1);
-            <a class="btn app-btn-secondary" asp-action="Details" asp-route-employeeId="@Model.EmployeeId" asp-route-year="@nextMonth.Year" asp-route-month="@nextMonth.Month">Next month</a>
+            <a class="attendance-month-button" asp-action="Details" asp-route-employeeId="@Model.EmployeeId" asp-route-year="@nextMonth.Year" asp-route-month="@nextMonth.Month" aria-label="View next month">&rsaquo;</a>
         }
         else
         {
-            <span class="btn app-btn-secondary pagination-disabled" aria-disabled="true">Next month</span>
+            <span class="attendance-month-button pagination-disabled" aria-disabled="true">&rsaquo;</span>
         }
     </nav>
 
@@ -54,8 +60,8 @@
             <span>Wed</span>
             <span>Thu</span>
             <span>Fri</span>
-            <span>Sat</span>
-            <span>Sun</span>
+            <span class="attendance-weekend-heading">Sat</span>
+            <span class="attendance-weekend-heading">Sun</span>
         </div>
         <div class="attendance-calendar-days">
             @foreach (var day in Model.CalendarDays)
@@ -66,12 +72,65 @@
                 }
                 else
                 {
-                    <div class="attendance-calendar-day @(day.IsToday ? "attendance-calendar-day-today" : string.Empty)">
-                        <span>@day.Date.Value.Day</span>
-                        <strong>@day.WorkedHours!.Value.ToString("0.##") h</strong>
+                    <div class="attendance-calendar-day @(day.IsToday ? "attendance-calendar-day-today" : string.Empty) @(day.IsWeekend ? "attendance-calendar-day-weekend" : string.Empty)">
+                        <div class="attendance-calendar-day-heading">
+                            <time datetime="@day.Date.Value.ToString("yyyy-MM-dd")">@day.Date.Value.Day</time>
+                            @if (day.IsToday)
+                            {
+                                <span class="attendance-today-label">Today</span>
+                            }
+                        </div>
+                        <strong class="attendance-calendar-hours">@day.WorkedHours!.Value.ToString("0.##") <small>h</small></strong>
+                        @if (day.HasBonus || day.HasComment)
+                        {
+                            <div class="attendance-calendar-flags">
+                                @if (day.HasBonus)
+                                {
+                                    <span class="attendance-bonus-flag">Bonus @day.BonusAmount.ToString("0.##")</span>
+                                }
+                                @if (day.HasComment)
+                                {
+                                    <span class="attendance-comment-flag">Comment</span>
+                                }
+                            </div>
+                        }
                     </div>
                 }
             }
         </div>
     </section>
+
+    @{
+        var daysWithNotes = Model.CalendarDays
+            .Where(day => day.Date is not null && (day.HasBonus || day.HasComment))
+            .ToArray();
+    }
+
+    @if (daysWithNotes.Length > 0)
+    {
+        <section class="attendance-day-insights" aria-labelledby="attendance-notes-title">
+            <div class="attendance-day-insights-heading">
+                <h2 id="attendance-notes-title">Day notes and bonuses</h2>
+                <p>Additional information recorded for this month.</p>
+            </div>
+            <ul class="attendance-day-insights-list">
+                @foreach (var day in daysWithNotes)
+                {
+                    <li>
+                        <time datetime="@day.Date!.Value.ToString("yyyy-MM-dd")">@day.Date.Value.Day @Model.MonthName</time>
+                        <div>
+                            @if (day.HasBonus)
+                            {
+                                <p class="attendance-insight-bonus">Bonus: @day.BonusAmount.ToString("0.##")</p>
+                            }
+                            @if (day.HasComment)
+                            {
+                                <p class="attendance-insight-comment">@day.ForemanComment</p>
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
+        </section>
+    }
 </section>

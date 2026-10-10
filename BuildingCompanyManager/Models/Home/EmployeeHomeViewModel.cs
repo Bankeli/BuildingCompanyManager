@@ -19,4 +19,39 @@ public class EmployeeHomeViewModel
     public decimal MonthlyWorkedHours { get; set; }
 
     public decimal MonthlyEarnings { get; set; }
+
+    public IReadOnlyCollection<ForemanCrewAssignmentViewModel> ForemanCrewAssignments { get; set; } = [];
+
+    public EmployeeCrewAssignmentViewModel? CrewAssignment { get; set; }
+}
+
+public class ForemanCrewAssignmentViewModel
+{
+    public string CrewName { get; set; } = string.Empty;
+
+    public string TechnicalManagerName { get; set; } = string.Empty;
+
+    public IReadOnlyCollection<EmployeeProjectAssignmentViewModel> ProjectAssignments { get; set; } = [];
+}
+
+public class EmployeeCrewAssignmentViewModel
+{
+    public string CrewName { get; set; } = string.Empty;
+
+    public string TechnicalManagerName { get; set; } = string.Empty;
+
+    public string ForemanName { get; set; } = string.Empty;
+
+    public IReadOnlyCollection<EmployeeProjectAssignmentViewModel> ProjectAssignments { get; set; } = [];
+}
+
+public class EmployeeProjectAssignmentViewModel
+{
+    public string ProjectName { get; set; } = string.Empty;
+
+    public string ClientName { get; set; } = string.Empty;
+
+    public DateOnly AssignedFrom { get; set; }
+
+    public DateOnly? AssignedTo { get; set; }
 }

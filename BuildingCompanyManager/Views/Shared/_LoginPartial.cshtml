@@ -21,14 +21,16 @@
             .SingleOrDefaultAsync();
     }
 
-    <li class="nav-item">
-        <a class="nav-link app-auth-link" asp-controller="Home" asp-action="Index">Home</a>
-    </li>
-
     if (employeeRole == EmployeeRole.Owner)
     {
         <li class="nav-item">
             <a class="nav-link app-auth-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link app-auth-link" asp-controller="Home" asp-action="Index">Home</a>
         </li>
     }
 

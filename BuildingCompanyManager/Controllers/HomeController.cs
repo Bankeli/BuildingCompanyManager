@@ -41,10 +41,12 @@ namespace BuildingCompanyManager.Controllers
                 {
                     item.Id,
                     item.FirstName,
+                    item.CompanyId,
                     CompanyName = item.Company.Name,
                     item.JobTitle,
                     item.Role,
-                    item.DailyRate
+                    item.DailyRate,
+                    item.CrewId
                 })
                 .SingleOrDefaultAsync();
 
@@ -77,7 +79,7 @@ namespace BuildingCompanyManager.Controllers
                 })
                 .SingleOrDefaultAsync();
 
-            return View(new EmployeeHomeViewModel
+            var model = new EmployeeHomeViewModel
             {
                 EmployeeId = employee.Id,
                 FirstName = employee.FirstName,
@@ -87,7 +89,101 @@ namespace BuildingCompanyManager.Controllers
                 DailyRate = employee.DailyRate ?? 0m,
                 MonthlyWorkedHours = monthlyTotals?.WorkedHours ?? 0m,
                 MonthlyEarnings = monthlyTotals?.Earnings ?? 0m
-            });
+            };
+
+            if (employee.Role == EmployeeRole.Foreman)
+            {
+                var crews = await dbContext.Crews
+                    .AsNoTracking()
+                    .Where(crew => crew.ForemanId == employee.Id && crew.IsActive)
+                    .Select(crew => new
+                    {
+                        crew.Id,
+                        crew.Name,
+                        TechnicalManagerName = crew.TechnicalManager.FirstName + " " + crew.TechnicalManager.LastName
+                    })
+                    .ToListAsync();
+
+                var crewIds = crews.Select(crew => crew.Id).ToArray();
+                var projectAssignments = await GetCurrentProjectAssignmentsQuery(today)
+                    .Where(assignment => crewIds.Contains(assignment.CrewId))
+                    .Select(assignment => new
+                    {
+                        assignment.CrewId,
+                        assignment.Project.Name,
+                        assignment.Project.ClientName,
+                        assignment.AssignedFrom,
+                        assignment.AssignedTo
+                    })
+                    .ToListAsync();
+
+                model.ForemanCrewAssignments = crews
+                    .Select(crew => new ForemanCrewAssignmentViewModel
+                    {
+                        CrewName = crew.Name,
+                        TechnicalManagerName = crew.TechnicalManagerName,
+                        ProjectAssignments = projectAssignments
+                            .Where(assignment => assignment.CrewId == crew.Id)
+                            .OrderBy(assignment => assignment.Name)
+                            .Select(assignment => new EmployeeProjectAssignmentViewModel
+                            {
+                                ProjectName = assignment.Name,
+                                ClientName = assignment.ClientName,
+                                AssignedFrom = assignment.AssignedFrom,
+                                AssignedTo = assignment.AssignedTo
+                            })
+                            .ToArray()
+                    })
+                    .OrderBy(crew => crew.CrewName)
+                    .ToArray();
+            }
+
+            if (employee.Role == EmployeeRole.Worker && employee.CrewId is int crewId)
+            {
+                var crewAssignment = await dbContext.Crews
+                    .AsNoTracking()
+                    .Where(crew =>
+                        crew.Id == crewId &&
+                        crew.CompanyId == employee.CompanyId &&
+                        crew.IsActive)
+                    .Select(crew => new EmployeeCrewAssignmentViewModel
+                    {
+                        CrewName = crew.Name,
+                        TechnicalManagerName = crew.TechnicalManager.FirstName + " " + crew.TechnicalManager.LastName,
+                        ForemanName = crew.Foreman.FirstName + " " + crew.Foreman.LastName
+                    })
+                    .SingleOrDefaultAsync();
+
+                if (crewAssignment is not null)
+                {
+                    crewAssignment.ProjectAssignments = await GetCurrentProjectAssignmentsQuery(today)
+                        .Where(assignment => assignment.CrewId == crewId)
+                        .OrderBy(assignment => assignment.Project.Name)
+                        .Select(assignment => new EmployeeProjectAssignmentViewModel
+                        {
+                            ProjectName = assignment.Project.Name,
+                            ClientName = assignment.Project.ClientName,
+                            AssignedFrom = assignment.AssignedFrom,
+                            AssignedTo = assignment.AssignedTo
+                        })
+                        .ToArrayAsync();
+
+                    model.CrewAssignment = crewAssignment;
+                }
+            }
+
+            return View(model);
+        }
+
+        private IQueryable<Data.Models.ProjectCrew> GetCurrentProjectAssignmentsQuery(DateOnly today)
+        {
+            return dbContext.ProjectCrews
+                .AsNoTracking()
+                .Where(assignment =>
+                    assignment.IsActive &&
+                    assignment.Project.Status == ProjectStatus.Active &&
+                    assignment.AssignedFrom <= today &&
+                    (assignment.AssignedTo == null || assignment.AssignedTo >= today));
         }
 
         public IActionResult Privacy()

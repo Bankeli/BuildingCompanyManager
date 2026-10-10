@@ -259,6 +259,81 @@ public class EmployeesController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var owner = await GetCurrentOwnerAsync();
+
+        if (owner is null)
+        {
+            return Forbid();
+        }
+
+        var model = await dbContext.Employees
+            .AsNoTracking()
+            .Where(employee =>
+                employee.Id == id &&
+                employee.CompanyId == owner.CompanyId &&
+                employee.Role != EmployeeRole.Owner)
+            .Select(employee => new EmployeeEditInputModel
+            {
+                Id = employee.Id,
+                EmployeeName = employee.FirstName + " " + employee.LastName,
+                JobTitle = employee.JobTitle,
+                DailyRate = employee.DailyRate
+            })
+            .SingleOrDefaultAsync();
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(EmployeeEditInputModel model)
+    {
+        var owner = await GetCurrentOwnerAsync();
+
+        if (owner is null)
+        {
+            return Forbid();
+        }
+
+        NormalizeInput(model);
+        ModelState.Clear();
+        TryValidateModel(model);
+
+        var employee = await dbContext.Employees.SingleOrDefaultAsync(employee =>
+            employee.Id == model.Id &&
+            employee.CompanyId == owner.CompanyId &&
+            employee.Role != EmployeeRole.Owner);
+
+        if (employee is null)
+        {
+            return NotFound();
+        }
+
+        model.EmployeeName = employee.FirstName + " " + employee.LastName;
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        employee.JobTitle = model.JobTitle;
+        employee.DailyRate = model.DailyRate!.Value;
+
+        await dbContext.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Employment details updated successfully.";
+
+        return RedirectToAction(nameof(Details), new { id = employee.Id });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Add()
     {
         if (await GetCurrentOwnerAsync() is null)
@@ -443,6 +518,11 @@ public class EmployeesController : Controller
         model.FirstName = model.FirstName?.Trim() ?? string.Empty;
         model.LastName = model.LastName?.Trim() ?? string.Empty;
         model.Email = (model.Email?.Trim() ?? string.Empty).ToLowerInvariant();
+        model.JobTitle = model.JobTitle?.Trim() ?? string.Empty;
+    }
+
+    private static void NormalizeInput(EmployeeEditInputModel model)
+    {
         model.JobTitle = model.JobTitle?.Trim() ?? string.Empty;
     }
 

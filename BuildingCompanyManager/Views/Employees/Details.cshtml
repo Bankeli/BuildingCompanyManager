@@ -33,9 +33,15 @@
             <h1 id="employee-profile-title">@Model.FirstName @Model.LastName</h1>
             <p>@GetRoleName(Model.Role) - @Model.JobTitle</p>
         </div>
-        <span class="status-label @(Model.IsActive ? "status-label-active" : "status-label-inactive")">
-            @(Model.IsActive ? "Active" : "Inactive")
-        </span>
+        <div class="employee-profile-header-actions">
+            @if (Model.Role != EmployeeRole.Owner)
+            {
+                <a class="btn app-btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Edit employment</a>
+            }
+            <span class="status-label @(Model.IsActive ? "status-label-active" : "status-label-inactive")">
+                @(Model.IsActive ? "Active" : "Inactive")
+            </span>
+        </div>
     </header>
 
     <div class="employee-profile-grid">

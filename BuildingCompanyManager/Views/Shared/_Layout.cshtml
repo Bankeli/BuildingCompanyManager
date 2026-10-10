@@ -1,4 +1,9 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
 
+@{
+    var pageStyle = ViewData["PageStyle"] as string ?? string.Empty;
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -11,36 +16,50 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BuildingCompanyManager.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header class="app-header">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm app-navbar">
-            <div class="container-fluid">
-                <a class="navbar-brand app-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img class="app-brand-logo" src="~/images/logo.png" alt="Builder Manager" />
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <div class="flex-grow-1"></div>
-                    <partial name="_LoginPartial" />
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="app-footer">
-        <div class="container">
-            <span>&copy; @DateTime.UtcNow.Year Builder Manager</span>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+<body class="@pageStyle">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <div class="app-shell">
+            <aside class="app-sidebar">
+                <partial name="_AppSidebar" />
+            </aside>
+            <main role="main" class="app-main">
+                @RenderBody()
+            </main>
         </div>
-    </footer>
+    }
+    else
+    {
+        <header class="app-header">
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm app-navbar">
+                <div class="container-fluid">
+                    <a class="navbar-brand app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img class="app-brand-logo" src="~/images/logo.png" alt="Builder Manager" />
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <div class="flex-grow-1"></div>
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="app-footer">
+            <div class="container">
+                <span>&copy; @DateTime.UtcNow.Year Builder Manager</span>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
+    }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

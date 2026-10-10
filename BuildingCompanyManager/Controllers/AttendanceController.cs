@@ -337,7 +337,8 @@ public class AttendanceController : Controller
             .Select(item => new
             {
                 item.Id,
-                FullName = item.FirstName + " " + item.LastName
+                item.FirstName,
+                item.LastName
             })
             .SingleOrDefaultAsync();
 
@@ -367,18 +368,25 @@ public class AttendanceController : Controller
                 record.EmployeeId == employee.Id &&
                 record.WorkDate >= monthStart &&
                 record.WorkDate <= monthEnd)
-            .Select(record => new { record.WorkDate, record.WorkedHours })
-            .ToDictionaryAsync(record => record.WorkDate, record => record.WorkedHours);
+            .Select(record => new AttendanceDayRecordViewModel
+            {
+                WorkDate = record.WorkDate,
+                WorkedHours = record.WorkedHours,
+                BonusAmount = record.BonusAmount,
+                ForemanComment = record.ForemanComment
+            })
+            .ToDictionaryAsync(record => record.WorkDate);
 
         var model = new AttendanceEmployeeDetailsViewModel
         {
             EmployeeId = employee.Id,
-            EmployeeName = employee.FullName,
+            EmployeeName = employee.FirstName + " " + employee.LastName,
+            EmployeeInitials = GetInitials(employee.FirstName, employee.LastName),
             CompanyName = currentEmployee.CompanyName,
             Year = selectedYear,
             Month = selectedMonth,
             MonthName = CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(selectedMonth),
-            TotalWorkedHours = records.Values.Sum(),
+            TotalWorkedHours = records.Values.Sum(record => record.WorkedHours),
             CanReturnToAttendance = canManageAttendance,
             CanNavigateToPreviousMonth = monthStart != DateOnly.MinValue,
             CanNavigateToNextMonth = monthStart.Year != 9999 || monthStart.Month != 12,
@@ -564,7 +572,7 @@ public class AttendanceController : Controller
 
     private static IReadOnlyCollection<AttendanceCalendarDayViewModel> BuildCalendarDays(
         DateOnly monthStart,
-        IReadOnlyDictionary<DateOnly, decimal> records,
+        IReadOnlyDictionary<DateOnly, AttendanceDayRecordViewModel> records,
         DateOnly today)
     {
         var firstDayOffset = ((int)monthStart.DayOfWeek + 6) % 7;
@@ -583,10 +591,14 @@ public class AttendanceController : Controller
             }
 
             var date = new DateOnly(monthStart.Year, monthStart.Month, dayNumber);
+            records.TryGetValue(date, out var record);
+
             calendarDays.Add(new AttendanceCalendarDayViewModel
             {
                 Date = date,
-                WorkedHours = records.TryGetValue(date, out var workedHours) ? workedHours : 0m,
+                WorkedHours = record?.WorkedHours ?? 0m,
+                BonusAmount = record?.BonusAmount ?? 0m,
+                ForemanComment = record?.ForemanComment,
                 IsToday = date == today
             });
         }
@@ -636,6 +648,9 @@ public class AttendanceController : Controller
 
     private static string? NormalizeComment(string? comment) =>
         string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
+
+    private static string GetInitials(string firstName, string lastName) =>
+        string.Concat(firstName.FirstOrDefault(), lastName.FirstOrDefault()).ToUpperInvariant();
 
     private sealed record EmployeeContext(
         int EmployeeId,

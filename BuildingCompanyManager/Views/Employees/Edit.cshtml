@@ -1,0 +1,39 @@
+@model BuildingCompanyManager.Models.Employees.EmployeeEditInputModel
+
+@{
+    ViewData["Title"] = "Edit employment";
+}
+
+<section class="form-page" aria-labelledby="edit-employment-title">
+    <header class="form-page-header">
+        <a class="back-link" asp-action="Details" asp-route-id="@Model.Id">Back to employee profile</a>
+        <h1 id="edit-employment-title">Edit employment</h1>
+        <p>Update the job title and daily rate for @Model.EmployeeName.</p>
+    </header>
+
+    <form class="app-form" asp-action="Edit" method="post">
+        <input asp-for="Id" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+        <div class="form-group">
+            <label asp-for="JobTitle"></label>
+            <input asp-for="JobTitle" class="form-control" />
+            <span asp-validation-for="JobTitle" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DailyRate"></label>
+            <input asp-for="DailyRate" class="form-control" min="0.01" step="0.01" />
+            <span asp-validation-for="DailyRate" class="text-danger"></span>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn app-btn-secondary" asp-action="Details" asp-route-id="@Model.Id">Cancel</a>
+            <button type="submit" class="btn app-btn-primary">Save changes</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

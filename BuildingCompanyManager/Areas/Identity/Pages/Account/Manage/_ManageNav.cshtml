@@ -1,0 +1,22 @@
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
+
+    string ActiveClass(string page) => string.Equals(
+        currentPage,
+        page,
+        StringComparison.OrdinalIgnoreCase)
+        ? "active"
+        : string.Empty;
+}
+
+<ul class="nav nav-pills flex-column">
+    <li class="nav-item">
+        <a class="nav-link @ActiveClass("/Account/Manage/Index")" asp-page="./Index">Profile</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ActiveClass("/Account/Manage/Email")" asp-page="./Email">Email</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ActiveClass("/Account/Manage/ChangePassword")" asp-page="./ChangePassword">Password</a>
+    </li>
+</ul>
