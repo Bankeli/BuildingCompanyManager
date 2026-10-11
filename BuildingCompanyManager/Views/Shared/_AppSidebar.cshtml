@@ -29,14 +29,9 @@
     var initials = employee is null
         ? string.Empty
         : string.Concat(employee.FirstName.FirstOrDefault(), employee.LastName.FirstOrDefault()).ToUpperInvariant();
-    var roleName = employee?.Role switch
-    {
-        EmployeeRole.Owner => "Owner",
-        EmployeeRole.TechnicalManager => "Technical manager",
-        EmployeeRole.Foreman => "Foreman",
-        EmployeeRole.Worker => "Worker",
-        _ => "Account"
-    };
+    var roleName = employee?.Role is EmployeeRole role
+        ? role.ToDisplayName()
+        : "Account";
 
     string ActiveClass(string controller) => string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
         ? "app-sidebar-link-active"
@@ -61,6 +56,8 @@
             <a class="app-sidebar-link @ActiveClass("Employees")" asp-controller="Employees" asp-action="Index">Employees</a>
             <a class="app-sidebar-link @ActiveClass("Crews")" asp-controller="Crews" asp-action="Index">Crews</a>
             <a class="app-sidebar-link @ActiveClass("Projects")" asp-controller="Projects" asp-action="Index">Projects</a>
+            <a class="app-sidebar-link @ActiveClass("Payroll")" asp-controller="Payroll" asp-action="Index">Payroll</a>
+            <a class="app-sidebar-link @ActiveClass("AuditLogs")" asp-controller="AuditLogs" asp-action="Index">Activity log</a>
         }
 
         @if (employee?.Role is EmployeeRole.Owner or EmployeeRole.TechnicalManager or EmployeeRole.Foreman)

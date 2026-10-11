@@ -5,16 +5,6 @@
     ViewData["Title"] = "Attendance";
 }
 
-@functions {
-    private static string GetRoleName(EmployeeRole role) => role switch
-    {
-        EmployeeRole.TechnicalManager => "Technical manager",
-        EmployeeRole.Foreman => "Foreman",
-        EmployeeRole.Worker => "Worker",
-        _ => "Employee"
-    };
-}
-
 <section class="management-page" aria-labelledby="attendance-title">
     <header class="management-header">
         <div>
@@ -74,7 +64,7 @@
                     {
                         <tr>
                             <td>@employee.FullName</td>
-                            <td>@GetRoleName(employee.Role)</td>
+                            <td>@employee.Role.ToDisplayName()</td>
                             <td>@employee.WorkedHours.ToString("0.##")</td>
                             <td>@employee.ExtraHours.ToString("0.##")</td>
                             <td>@employee.BonusAmount.ToString("F2")</td>

@@ -2,6 +2,7 @@ using BuildingCompanyManager.Data;
 using BuildingCompanyManager.Data.Seed;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using BuildingCompanyManager.Services.Audit;
 
 namespace BuildingCompanyManager
 {
@@ -26,6 +27,7 @@ namespace BuildingCompanyManager
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<IAuditService, AuditService>();
 
             var app = builder.Build();
 

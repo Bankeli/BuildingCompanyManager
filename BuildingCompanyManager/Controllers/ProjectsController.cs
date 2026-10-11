@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BuildingCompanyManager.Services.Audit;
 
 namespace BuildingCompanyManager.Controllers;
 
@@ -16,13 +17,16 @@ public class ProjectsController : Controller
 {
     private readonly ApplicationDbContext dbContext;
     private readonly UserManager<IdentityUser> userManager;
+    private readonly IAuditService auditService;
 
     public ProjectsController(
         ApplicationDbContext dbContext,
-        UserManager<IdentityUser> userManager)
+        UserManager<IdentityUser> userManager,
+        IAuditService auditService)
     {
         this.dbContext = dbContext;
         this.userManager = userManager;
+        this.auditService = auditService;
     }
 
     [HttpGet]
@@ -326,10 +330,19 @@ public class ProjectsController : Controller
         var today = DateOnly.FromDateTime(DateTime.Today);
         assignment.IsActive = false;
 
-        if (assignment.AssignedTo is null && assignment.AssignedFrom <= today)
+        if (assignment.AssignedFrom <= today &&
+            (assignment.AssignedTo is null || assignment.AssignedTo > today))
         {
             assignment.AssignedTo = today;
         }
+
+        auditService.Record(
+            owner.CompanyId,
+            owner.EmployeeId,
+            AuditActionType.CrewAssignmentEnded,
+            nameof(ProjectCrew),
+            assignment.Id,
+            $"Ended crew assignment on {today:yyyy-MM-dd}.");
 
         await dbContext.SaveChangesAsync();
 
@@ -508,7 +521,7 @@ public class ProjectsController : Controller
                 employee.UserId == userId &&
                 employee.IsActive &&
                 employee.Role == EmployeeRole.Owner)
-            .Select(employee => new OwnerCompanyContext(employee.CompanyId, employee.Company.Name))
+            .Select(employee => new OwnerCompanyContext(employee.Id, employee.CompanyId, employee.Company.Name))
             .SingleOrDefaultAsync();
     }
 
@@ -519,5 +532,5 @@ public class ProjectsController : Controller
         model.Address = model.Address?.Trim() ?? string.Empty;
     }
 
-    private sealed record OwnerCompanyContext(int CompanyId, string CompanyName);
+    private sealed record OwnerCompanyContext(int EmployeeId, int CompanyId, string CompanyName);
 }

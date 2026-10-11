@@ -88,6 +88,48 @@ namespace BuildingCompanyManager.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BuildingCompanyManager.Data.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Action")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ActorEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorEmployeeId");
+
+                    b.HasIndex("CompanyId", "CreatedOn");
+
+                    b.ToTable("AuditLogs", (string)null);
+                });
+
             modelBuilder.Entity("BuildingCompanyManager.Data.Models.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -531,6 +573,25 @@ namespace BuildingCompanyManager.Data.Migrations
                     b.Navigation("RecordedByEmployee");
                 });
 
+            modelBuilder.Entity("BuildingCompanyManager.Data.Models.AuditLog", b =>
+                {
+                    b.HasOne("BuildingCompanyManager.Data.Models.Employee", "ActorEmployee")
+                        .WithMany("AuditLogs")
+                        .HasForeignKey("ActorEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingCompanyManager.Data.Models.Company", "Company")
+                        .WithMany("AuditLogs")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ActorEmployee");
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("BuildingCompanyManager.Data.Models.Crew", b =>
                 {
                     b.HasOne("BuildingCompanyManager.Data.Models.Company", "Company")
@@ -673,6 +734,8 @@ namespace BuildingCompanyManager.Data.Migrations
 
             modelBuilder.Entity("BuildingCompanyManager.Data.Models.Company", b =>
                 {
+                    b.Navigation("AuditLogs");
+
                     b.Navigation("Crews");
 
                     b.Navigation("Employees");
@@ -690,6 +753,8 @@ namespace BuildingCompanyManager.Data.Migrations
             modelBuilder.Entity("BuildingCompanyManager.Data.Models.Employee", b =>
                 {
                     b.Navigation("AttendanceRecords");
+
+                    b.Navigation("AuditLogs");
 
                     b.Navigation("ManagedCrews");
 

@@ -23,6 +23,10 @@ public class EmployeeHomeViewModel
     public IReadOnlyCollection<ForemanCrewAssignmentViewModel> ForemanCrewAssignments { get; set; } = [];
 
     public EmployeeCrewAssignmentViewModel? CrewAssignment { get; set; }
+
+    public IReadOnlyCollection<TechnicalManagerProjectViewModel> ManagedProjects { get; set; } = [];
+
+    public IReadOnlyCollection<TechnicalManagerCrewViewModel> UnassignedCrews { get; set; } = [];
 }
 
 public class ForemanCrewAssignmentViewModel
@@ -54,4 +58,33 @@ public class EmployeeProjectAssignmentViewModel
     public DateOnly AssignedFrom { get; set; }
 
     public DateOnly? AssignedTo { get; set; }
+}
+
+public class TechnicalManagerProjectViewModel
+{
+    public string ProjectName { get; set; } = string.Empty;
+
+    public string ClientName { get; set; } = string.Empty;
+
+    public ProjectStatus Status { get; set; }
+
+    public IReadOnlyCollection<TechnicalManagerCrewSummaryViewModel> ActiveCrews { get; set; } = [];
+}
+
+public class TechnicalManagerCrewViewModel
+{
+    public string CrewName { get; set; } = string.Empty;
+
+    public string ForemanName { get; set; } = string.Empty;
+
+    public int WorkersCount { get; set; }
+}
+
+public class TechnicalManagerCrewSummaryViewModel
+{
+    public string CrewName { get; set; } = string.Empty;
+
+    public string ForemanName { get; set; } = string.Empty;
+
+    public int WorkersCount { get; set; }
 }

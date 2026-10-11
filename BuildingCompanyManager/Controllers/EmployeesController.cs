@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BuildingCompanyManager.Services.Audit;
 
 namespace BuildingCompanyManager.Controllers;
 
@@ -19,13 +20,16 @@ public class EmployeesController : Controller
 
     private readonly ApplicationDbContext dbContext;
     private readonly UserManager<IdentityUser> userManager;
+    private readonly IAuditService auditService;
 
     public EmployeesController(
         ApplicationDbContext dbContext,
-        UserManager<IdentityUser> userManager)
+        UserManager<IdentityUser> userManager,
+        IAuditService auditService)
     {
         this.dbContext = dbContext;
         this.userManager = userManager;
+        this.auditService = auditService;
     }
 
     [HttpGet]
@@ -278,6 +282,7 @@ public class EmployeesController : Controller
             {
                 Id = employee.Id,
                 EmployeeName = employee.FirstName + " " + employee.LastName,
+                Role = employee.Role,
                 JobTitle = employee.JobTitle,
                 DailyRate = employee.DailyRate
             })
@@ -318,19 +323,212 @@ public class EmployeesController : Controller
 
         model.EmployeeName = employee.FirstName + " " + employee.LastName;
 
+        if (model.Role is not EmployeeRole.TechnicalManager and not EmployeeRole.Foreman and not EmployeeRole.Worker)
+        {
+            ModelState.AddModelError(nameof(model.Role), EmployeeRoleChangeErrorMessages.InvalidRole);
+        }
+        else
+        {
+            await ValidateRoleChangeAsync(employee, model.Role.Value, model);
+        }
+
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
+        var previousRole = employee.Role;
+        var previousJobTitle = employee.JobTitle;
+        var previousDailyRate = employee.DailyRate;
+
+        if (employee.Role != model.Role!.Value)
+        {
+            employee.Role = model.Role.Value;
+            employee.CrewId = null;
+        }
+
         employee.JobTitle = model.JobTitle;
         employee.DailyRate = model.DailyRate!.Value;
+
+        auditService.Record(
+            owner.CompanyId,
+            owner.EmployeeId,
+            AuditActionType.EmployeeEmploymentUpdated,
+            nameof(Employee),
+            employee.Id,
+            $"Updated {employee.FirstName} {employee.LastName}: role {previousRole} to {employee.Role}, job title '{previousJobTitle}' to '{employee.JobTitle}', daily rate {previousDailyRate:0.##} to {employee.DailyRate:0.##}.");
 
         await dbContext.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Employment details updated successfully.";
 
         return RedirectToAction(nameof(Details), new { id = employee.Id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleStatus(int id)
+    {
+        var owner = await GetCurrentOwnerAsync();
+
+        if (owner is null)
+        {
+            return Forbid();
+        }
+
+        var employee = await dbContext.Employees.SingleOrDefaultAsync(item =>
+            item.Id == id &&
+            item.CompanyId == owner.CompanyId &&
+            item.Role != EmployeeRole.Owner);
+
+        if (employee is null)
+        {
+            return NotFound();
+        }
+
+        var user = await userManager.FindByIdAsync(employee.UserId);
+
+        if (user is null)
+        {
+            TempData["ErrorMessage"] = EmployeeAccountErrorMessages.AccountNotFound;
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            employee.IsActive = !employee.IsActive;
+
+            auditService.Record(
+                owner.CompanyId,
+                owner.EmployeeId,
+                AuditActionType.EmployeeAccountStatusChanged,
+                nameof(Employee),
+                employee.Id,
+                $"{(employee.IsActive ? "Reactivated" : "Deactivated")} employee account for {employee.FirstName} {employee.LastName}.");
+
+            var lockoutEnabledResult = await userManager.SetLockoutEnabledAsync(user, true);
+            var lockoutEndResult = await userManager.SetLockoutEndDateAsync(
+                user,
+                employee.IsActive ? null : DateTimeOffset.MaxValue);
+
+            if (!lockoutEnabledResult.Succeeded || !lockoutEndResult.Succeeded)
+            {
+                await transaction.RollbackAsync();
+                TempData["ErrorMessage"] = EmployeeAccountErrorMessages.StatusUpdateFailed;
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            await dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync();
+            TempData["ErrorMessage"] = EmployeeAccountErrorMessages.StatusUpdateFailed;
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        TempData["SuccessMessage"] = employee.IsActive
+            ? "Employee account reactivated successfully."
+            : "Employee account deactivated successfully.";
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(int id)
+    {
+        var owner = await GetCurrentOwnerAsync();
+
+        if (owner is null)
+        {
+            return Forbid();
+        }
+
+        var employee = await dbContext.Employees
+            .AsNoTracking()
+            .Where(item =>
+                item.Id == id &&
+                item.CompanyId == owner.CompanyId &&
+                item.Role != EmployeeRole.Owner)
+            .Select(item => new
+            {
+                item.Id,
+                item.UserId,
+                item.IsActive,
+                Email = dbContext.Users
+                    .Where(user => user.Id == item.UserId)
+                    .Select(user => user.Email)
+                    .FirstOrDefault()
+            })
+            .SingleOrDefaultAsync();
+
+        if (employee is null)
+        {
+            return NotFound();
+        }
+
+        if (!employee.IsActive)
+        {
+            TempData["ErrorMessage"] = EmployeeAccountErrorMessages.InactiveEmployeePasswordReset;
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        var user = await userManager.FindByIdAsync(employee.UserId);
+
+        if (user is null)
+        {
+            TempData["ErrorMessage"] = EmployeeAccountErrorMessages.AccountNotFound;
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        var temporaryPassword = GenerateTemporaryPassword();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            var resetResult = await userManager.ResetPasswordAsync(user, resetToken, temporaryPassword);
+
+            if (!resetResult.Succeeded)
+            {
+                await transaction.RollbackAsync();
+                TempData["ErrorMessage"] = EmployeeAccountErrorMessages.PasswordResetFailed;
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            auditService.Record(
+                owner.CompanyId,
+                owner.EmployeeId,
+                AuditActionType.EmployeePasswordReset,
+                nameof(Employee),
+                employee.Id,
+                "Generated a new temporary password for this employee account.");
+            await dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync();
+            TempData["ErrorMessage"] = EmployeeAccountErrorMessages.PasswordResetFailed;
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        TempData["SuccessMessage"] = "A new temporary password was generated successfully.";
+        TempData["ResetEmployeeEmail"] = employee.Email;
+        TempData["GeneratedPassword"] = temporaryPassword;
+
+        return RedirectToAction(nameof(Details), new { id });
     }
 
     [HttpGet]
@@ -413,6 +611,14 @@ public class EmployeesController : Controller
 
             dbContext.Employees.Add(employee);
             await dbContext.SaveChangesAsync();
+            auditService.Record(
+                owner.CompanyId,
+                owner.EmployeeId,
+                AuditActionType.EmployeeCreated,
+                nameof(Employee),
+                employee.Id,
+                $"Created employee account for {employee.FirstName} {employee.LastName} with role {employee.Role}.");
+            await dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
         }
         catch (DbUpdateException)
@@ -446,6 +652,7 @@ public class EmployeesController : Controller
                 employee.IsActive &&
                 employee.Role == EmployeeRole.Owner)
             .Select(employee => new OwnerCompanyContext(
+                employee.Id,
                 employee.CompanyId,
                 employee.Company.Name))
             .SingleOrDefaultAsync();
@@ -526,6 +733,52 @@ public class EmployeesController : Controller
         model.JobTitle = model.JobTitle?.Trim() ?? string.Empty;
     }
 
+    private async Task ValidateRoleChangeAsync(
+        Employee employee,
+        EmployeeRole requestedRole,
+        EmployeeEditInputModel model)
+    {
+        if (employee.Role == requestedRole)
+        {
+            return;
+        }
+
+        if (employee.Role == EmployeeRole.TechnicalManager)
+        {
+            var managedProjectsCount = await dbContext.Projects.CountAsync(project =>
+                project.CompanyId == employee.CompanyId &&
+                project.TechnicalManagerId == employee.Id);
+            var managedCrewsCount = await dbContext.Crews.CountAsync(crew =>
+                crew.CompanyId == employee.CompanyId &&
+                crew.TechnicalManagerId == employee.Id);
+
+            if (managedProjectsCount > 0 || managedCrewsCount > 0)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Role),
+                    string.Format(
+                        EmployeeRoleChangeErrorMessages.TechnicalManagerHasAssignments,
+                        managedProjectsCount,
+                        managedCrewsCount));
+            }
+        }
+
+        if (employee.Role == EmployeeRole.Foreman)
+        {
+            var activeCrewsCount = await dbContext.Crews.CountAsync(crew =>
+                crew.CompanyId == employee.CompanyId &&
+                crew.ForemanId == employee.Id &&
+                crew.IsActive);
+
+            if (activeCrewsCount > 0)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Role),
+                    string.Format(EmployeeRoleChangeErrorMessages.ForemanHasAssignments, activeCrewsCount));
+            }
+        }
+    }
+
     private sealed record CrewProjectRow(
         int Id,
         string Name,
@@ -533,5 +786,5 @@ public class EmployeesController : Controller
         ProjectStatus Status,
         string CrewName);
 
-    private sealed record OwnerCompanyContext(int CompanyId, string CompanyName);
+    private sealed record OwnerCompanyContext(int EmployeeId, int CompanyId, string CompanyName);
 }

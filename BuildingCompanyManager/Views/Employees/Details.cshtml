@@ -3,27 +3,8 @@
 
 @{
     ViewData["Title"] = "Employee profile";
-}
-
-@functions {
-    private static string GetRoleName(EmployeeRole role) => role switch
-    {
-        EmployeeRole.Owner => "Owner",
-        EmployeeRole.TechnicalManager => "Technical manager",
-        EmployeeRole.Foreman => "Foreman",
-        EmployeeRole.Worker => "Worker",
-        _ => "Unknown"
-    };
-
-    private static string GetProjectStatusName(ProjectStatus status) => status switch
-    {
-        ProjectStatus.Planning => "Planning",
-        ProjectStatus.Active => "Active",
-        ProjectStatus.OnHold => "On hold",
-        ProjectStatus.Completed => "Completed",
-        ProjectStatus.Cancelled => "Cancelled",
-        _ => "Unknown"
-    };
+    var resetEmployeeEmail = TempData["ResetEmployeeEmail"] as string;
+    var generatedPassword = TempData["GeneratedPassword"] as string;
 }
 
 <section class="employee-profile-page" aria-labelledby="employee-profile-title">
@@ -31,7 +12,7 @@
         <div>
             <a class="back-link" asp-action="Index">Back to employees</a>
             <h1 id="employee-profile-title">@Model.FirstName @Model.LastName</h1>
-            <p>@GetRoleName(Model.Role) - @Model.JobTitle</p>
+            <p>@Model.Role.ToDisplayName() - @Model.JobTitle</p>
         </div>
         <div class="employee-profile-header-actions">
             @if (Model.Role != EmployeeRole.Owner)
@@ -43,6 +24,33 @@
             </span>
         </div>
     </header>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success management-notice" role="status">@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger management-notice" role="alert">@errorMessage</div>
+    }
+
+    @if (resetEmployeeEmail is not null && generatedPassword is not null)
+    {
+        <section class="new-employee-credentials employee-profile-credentials" aria-label="New employee password">
+            <p>New temporary password</p>
+            <dl>
+                <div>
+                    <dt>Email</dt>
+                    <dd>@resetEmployeeEmail</dd>
+                </div>
+                <div>
+                    <dt>Temporary password</dt>
+                    <dd><code>@generatedPassword</code></dd>
+                </div>
+            </dl>
+        </section>
+    }
 
     <div class="employee-profile-grid">
         <section class="employee-profile-section" aria-labelledby="account-title">
@@ -64,7 +72,7 @@
             <dl>
                 <div>
                     <dt>Role</dt>
-                    <dd>@GetRoleName(Model.Role)</dd>
+                    <dd>@Model.Role.ToDisplayName()</dd>
                 </div>
                 <div>
                     <dt>Job title</dt>
@@ -111,7 +119,7 @@
                     {
                         <li>
                             <a asp-controller="Projects" asp-action="ManageCrews" asp-route-id="@project.Id">@project.Name</a>
-                            <span>@project.ClientName - @GetProjectStatusName(project.Status)</span>
+                            <span>@project.ClientName - @project.Status.ToDisplayName()</span>
                             @if (project.IsTechnicalManager)
                             {
                                 <span>Technical manager</span>
@@ -126,4 +134,27 @@
             }
         </section>
     </div>
+
+    @if (Model.Role != EmployeeRole.Owner)
+    {
+        <section class="employee-account-actions" aria-labelledby="account-actions-title">
+            <h2 id="account-actions-title">Account actions</h2>
+            <p>Generate a new temporary password or update this employee account status.</p>
+            <div>
+                @if (Model.IsActive)
+                {
+                    <form asp-action="ResetPassword" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn app-btn-secondary" type="submit">Generate new password</button>
+                    </form>
+                }
+                <form asp-action="ToggleStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button class="btn @(Model.IsActive ? "app-btn-danger" : "app-btn-primary")" type="submit">
+                        @(Model.IsActive ? "Deactivate account" : "Reactivate account")
+                    </button>
+                </form>
+            </div>
+        </section>
+    }
 </section>

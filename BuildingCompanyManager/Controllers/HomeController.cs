@@ -172,6 +172,83 @@ namespace BuildingCompanyManager.Controllers
                 }
             }
 
+            if (employee.Role == EmployeeRole.TechnicalManager)
+            {
+                var managedCrews = await dbContext.Crews
+                    .AsNoTracking()
+                    .Where(crew =>
+                        crew.CompanyId == employee.CompanyId &&
+                        crew.TechnicalManagerId == employee.Id &&
+                        crew.IsActive)
+                    .Select(crew => new
+                    {
+                        crew.Id,
+                        crew.Name,
+                        ForemanName = crew.Foreman.FirstName + " " + crew.Foreman.LastName,
+                        WorkersCount = crew.Members.Count(member => member.IsActive)
+                    })
+                    .ToListAsync();
+
+                var crewIds = managedCrews.Select(crew => crew.Id).ToArray();
+                var currentAssignments = await GetCurrentProjectAssignmentsQuery(today)
+                    .Where(assignment => crewIds.Contains(assignment.CrewId))
+                    .Select(assignment => new
+                    {
+                        assignment.CrewId,
+                        assignment.Crew.Name,
+                        assignment.ProjectId,
+                        ProjectName = assignment.Project.Name
+                    })
+                    .ToListAsync();
+
+                model.UnassignedCrews = managedCrews
+                    .Where(crew => !currentAssignments.Any(assignment => assignment.CrewId == crew.Id))
+                    .Select(crew => new TechnicalManagerCrewViewModel
+                    {
+                        CrewName = crew.Name,
+                        ForemanName = crew.ForemanName,
+                        WorkersCount = crew.WorkersCount
+                    })
+                    .OrderBy(crew => crew.CrewName)
+                    .ToArray();
+
+                var managedProjects = await dbContext.Projects
+                    .AsNoTracking()
+                    .Where(project =>
+                        project.CompanyId == employee.CompanyId &&
+                        project.TechnicalManagerId == employee.Id)
+                    .Select(project => new
+                    {
+                        project.Id,
+                        project.Name,
+                        project.ClientName,
+                        project.Status
+                    })
+                    .ToListAsync();
+
+                model.ManagedProjects = managedProjects
+                    .Select(project => new TechnicalManagerProjectViewModel
+                    {
+                        ProjectName = project.Name,
+                        ClientName = project.ClientName,
+                        Status = project.Status,
+                        ActiveCrews = managedCrews
+                            .Where(crew => currentAssignments.Any(assignment =>
+                                assignment.ProjectId == project.Id &&
+                                assignment.CrewId == crew.Id))
+                            .OrderBy(crew => crew.Name)
+                            .Select(crew => new TechnicalManagerCrewSummaryViewModel
+                            {
+                                CrewName = crew.Name,
+                                ForemanName = crew.ForemanName,
+                                WorkersCount = crew.WorkersCount
+                            })
+                            .ToArray()
+                    })
+                    .OrderBy(project => project.ProjectName)
+                    .ToArray();
+            }
+
             return View(model);
         }
 

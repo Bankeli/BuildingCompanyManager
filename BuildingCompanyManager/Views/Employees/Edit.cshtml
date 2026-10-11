@@ -8,12 +8,22 @@
     <header class="form-page-header">
         <a class="back-link" asp-action="Details" asp-route-id="@Model.Id">Back to employee profile</a>
         <h1 id="edit-employment-title">Edit employment</h1>
-        <p>Update the job title and daily rate for @Model.EmployeeName.</p>
+        <p>Update the role, job title and daily rate for @Model.EmployeeName.</p>
     </header>
 
     <form class="app-form" asp-action="Edit" method="post">
         <input asp-for="Id" type="hidden" />
         <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+        <div class="form-group">
+            <label asp-for="Role"></label>
+            <select asp-for="Role" class="form-select">
+                <option value="@((int)BuildingCompanyManager.Data.Enums.EmployeeRole.TechnicalManager)">Technical manager</option>
+                <option value="@((int)BuildingCompanyManager.Data.Enums.EmployeeRole.Foreman)">Foreman</option>
+                <option value="@((int)BuildingCompanyManager.Data.Enums.EmployeeRole.Worker)">Worker</option>
+            </select>
+            <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
 
         <div class="form-group">
             <label asp-for="JobTitle"></label>

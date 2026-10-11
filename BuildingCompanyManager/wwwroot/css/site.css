@@ -1660,6 +1660,51 @@ body {
   gap: 0.75rem;
 }
 
+.employee-profile-credentials {
+  margin-top: 1.5rem;
+}
+
+.employee-account-actions {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--app-line);
+}
+
+.employee-account-actions h2 {
+  margin: 0;
+  color: var(--app-ink);
+  font-size: 1.25rem;
+}
+
+.employee-account-actions > p {
+  margin: 0.5rem 0 0;
+  color: var(--app-muted);
+}
+
+.employee-account-actions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.employee-account-actions form {
+  margin: 0;
+}
+
+.app-shell .app-btn-danger {
+  border-color: #c53c4a;
+  background: #c53c4a;
+  color: #ffffff;
+}
+
+.app-shell .app-btn-danger:hover,
+.app-shell .app-btn-danger:focus {
+  border-color: #a52e3b;
+  background: #a52e3b;
+  color: #ffffff;
+}
+
 .employee-profile-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -8,6 +8,7 @@ public static class DatabaseConstants
     public const string ProjectsTableName = "Projects";
     public const string ProjectCrewsTableName = "ProjectCrews";
     public const string AttendanceRecordsTableName = "AttendanceRecords";
+    public const string AuditLogsTableName = "AuditLogs";
 
     public const string ActiveCrewForemanFilter = "[IsActive] = 1";
     public const string ProjectCrewAssignmentDatesConstraintName = "CK_ProjectCrews_AssignmentDates";

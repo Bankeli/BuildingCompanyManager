@@ -5,23 +5,13 @@
     ViewData["Title"] = "Builder Manager";
 }
 
-@functions {
-    private static string GetRoleName(EmployeeRole role) => role switch
-    {
-        EmployeeRole.TechnicalManager => "Technical manager",
-        EmployeeRole.Foreman => "Foreman",
-        EmployeeRole.Worker => "Worker",
-        _ => "Employee"
-    };
-}
-
 @if (Model is not null)
 {
     <section class="employee-home-page" aria-labelledby="employee-home-title">
         <header class="employee-home-header">
             <p class="management-company">@Model.CompanyName</p>
             <h1 id="employee-home-title">Hello, @Model.FirstName</h1>
-            <p>@GetRoleName(Model.Role) · @Model.JobTitle</p>
+            <p>@Model.Role.ToDisplayName() · @Model.JobTitle</p>
         </header>
 
         <section class="employee-home-metrics" aria-label="This month">
@@ -145,6 +135,86 @@
                     </div>
                 }
             </section>
+        }
+
+        @if (Model.Role == EmployeeRole.TechnicalManager)
+        {
+            <section class="crew-overview" aria-labelledby="managed-projects-title">
+                <div class="crew-overview-header">
+                    <div>
+                        <p class="management-company">Project overview</p>
+                        <h2 id="managed-projects-title">Projects you manage</h2>
+                    </div>
+                </div>
+
+                @if (Model.ManagedProjects.Count == 0)
+                {
+                    <p class="crew-overview-empty">You are not responsible for a project yet.</p>
+                }
+                else
+                {
+                    <div class="crew-grid">
+                        @foreach (var project in Model.ManagedProjects)
+                        {
+                            <article class="crew-card">
+                                <header>
+                                    <p>Project</p>
+                                    <h3>@project.ProjectName</h3>
+                                    <span>@project.ClientName</span>
+                                    <span>Status: @project.Status.ToDisplayName()</span>
+                                </header>
+
+                                <div class="crew-projects">
+                                    <h4>Crews currently assigned</h4>
+                                    @if (project.ActiveCrews.Count == 0)
+                                    {
+                                        <p>There is no active crew assignment for this project.</p>
+                                    }
+                                    else
+                                    {
+                                        <ul>
+                                            @foreach (var crew in project.ActiveCrews)
+                                            {
+                                                <li>
+                                                    <strong>@crew.CrewName</strong>
+                                                    <span>Foreman: @crew.ForemanName</span>
+                                                    <span>@crew.WorkersCount active workers</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+
+            @if (Model.UnassignedCrews.Count > 0)
+            {
+            <section class="crew-overview" aria-labelledby="unassigned-crews-title">
+                <div class="crew-overview-header">
+                    <div>
+                        <p class="management-company">Team overview</p>
+                        <h2 id="unassigned-crews-title">Crews waiting for project assignment</h2>
+                    </div>
+                </div>
+
+                <div class="crew-grid">
+                    @foreach (var crew in Model.UnassignedCrews)
+                    {
+                        <article class="crew-card">
+                            <header>
+                                <p>Crew</p>
+                                <h3>@crew.CrewName</h3>
+                                <span>Foreman: @crew.ForemanName</span>
+                                <span>@crew.WorkersCount active workers</span>
+                            </header>
+                        </article>
+                    }
+                </div>
+            </section>
+            }
         }
     </section>
 }

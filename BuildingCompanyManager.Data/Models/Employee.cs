@@ -63,4 +63,6 @@ public class Employee
 
     public ICollection<AttendanceRecord> RecordedAttendanceRecords { get; set; } = new HashSet<AttendanceRecord>();
 
+    public ICollection<AuditLog> AuditLogs { get; set; } = new HashSet<AuditLog>();
+
 }

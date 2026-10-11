@@ -27,4 +27,6 @@ public class Company
 
     public ICollection<Project> Projects { get; set; } = new HashSet<Project>();
 
+    public ICollection<AuditLog> AuditLogs { get; set; } = new HashSet<AuditLog>();
+
 }

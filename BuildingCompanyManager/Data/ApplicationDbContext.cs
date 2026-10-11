@@ -25,6 +25,8 @@ public class ApplicationDbContext : IdentityDbContext
 
     public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
 
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -35,6 +37,7 @@ public class ApplicationDbContext : IdentityDbContext
         ConfigureProject(builder);
         ConfigureProjectCrew(builder);
         ConfigureAttendanceRecord(builder);
+        ConfigureAuditLog(builder);
     }
 
     private static void ConfigureCompany(ModelBuilder builder)
@@ -182,6 +185,26 @@ public class ApplicationDbContext : IdentityDbContext
             entity.HasOne(record => record.ProjectCrew)
                 .WithMany(projectCrew => projectCrew.AttendanceRecords)
                 .HasForeignKey(record => record.ProjectCrewId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private static void ConfigureAuditLog(ModelBuilder builder)
+    {
+        builder.Entity<AuditLog>(entity =>
+        {
+            entity.ToTable(DatabaseConstants.AuditLogsTableName);
+            entity.Property(log => log.Action).HasConversion<int>();
+            entity.HasIndex(log => new { log.CompanyId, log.CreatedOn });
+
+            entity.HasOne(log => log.Company)
+                .WithMany(company => company.AuditLogs)
+                .HasForeignKey(log => log.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(log => log.ActorEmployee)
+                .WithMany(employee => employee.AuditLogs)
+                .HasForeignKey(log => log.ActorEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

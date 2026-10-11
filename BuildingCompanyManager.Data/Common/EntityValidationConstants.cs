@@ -12,6 +12,8 @@ public static class EntityValidationConstants
     public const int EmailMaxLength = 256;
     public const int ProjectNameMaxLength = 150;
     public const int ForemanCommentMaxLength = 1000;
+    public const int AuditEntityTypeMaxLength = 50;
+    public const int AuditDescriptionMaxLength = 500;
 
     public const string MinimumPositiveAmount = "0.01";
     public const string MinimumZeroAmount = "0";

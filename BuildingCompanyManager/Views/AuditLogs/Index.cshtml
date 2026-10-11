@@ -1,0 +1,35 @@
+@using BuildingCompanyManager.Common
+@model BuildingCompanyManager.Models.Audit.AuditLogIndexViewModel
+
+@{
+    ViewData["Title"] = "Activity log";
+}
+
+<section class="management-page" aria-labelledby="audit-log-title">
+    <header class="management-header">
+        <div>
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="audit-log-title">Activity log</h1>
+            <p>The latest recorded management actions in your company.</p>
+        </div>
+    </header>
+
+    @if (Model.Entries.Count == 0)
+    {
+        <p class="management-empty-state">There are no recorded activities yet.</p>
+    }
+    else
+    {
+        <div class="management-table-wrap">
+            <table class="management-table">
+                <thead><tr><th scope="col">Date and time</th><th scope="col">Performed by</th><th scope="col">Action</th><th scope="col">Details</th></tr></thead>
+                <tbody>
+                @foreach (var entry in Model.Entries)
+                {
+                    <tr><td>@entry.CreatedOn.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td><td>@entry.ActorName</td><td>@entry.Action.ToDisplayName()</td><td>@entry.Description</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
