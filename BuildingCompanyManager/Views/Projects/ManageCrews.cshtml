@@ -1,0 +1,118 @@
+@model BuildingCompanyManager.Models.Projects.ProjectCrewManagementViewModel
+
+@{
+    ViewData["Title"] = "Project crews";
+}
+
+<section class="management-page" aria-labelledby="project-crews-title">
+    <header class="management-header">
+        <div>
+            <p class="management-company">Project</p>
+            <h1 id="project-crews-title">@Model.ProjectName</h1>
+            <p>@Model.ProjectStartDate.ToString("dd MMM yyyy") to @(Model.ProjectEndDate?.ToString("dd MMM yyyy") ?? "Open-ended")</p>
+        </div>
+        <a class="btn app-btn-secondary" asp-action="Index">Back to projects</a>
+    </header>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success management-notice" role="status">@successMessage</div>
+    }
+
+    <section class="management-section" aria-labelledby="assign-crew-title">
+        <div class="management-section-heading">
+            <h2 id="assign-crew-title">Assign crew</h2>
+        </div>
+
+        <form class="app-form compact-form" asp-action="AddCrew" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <input asp-for="Assignment.ProjectId" type="hidden" />
+            <div class="form-row-grid">
+                <div class="form-group">
+                    <label asp-for="Assignment.CrewId"></label>
+                    <select asp-for="Assignment.CrewId" class="form-select">
+                        <option value="">Select crew</option>
+                        @foreach (var crew in Model.AvailableCrews)
+                        {
+                            <option value="@crew.Id">@crew.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Assignment.CrewId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Assignment.AssignedFrom"></label>
+                    <input asp-for="Assignment.AssignedFrom" class="form-control" />
+                    <span asp-validation-for="Assignment.AssignedFrom" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-row-grid">
+                <div class="form-group">
+                    <label asp-for="Assignment.AssignedTo"></label>
+                    <input asp-for="Assignment.AssignedTo" class="form-control" />
+                    <span asp-validation-for="Assignment.AssignedTo" class="text-danger"></span>
+                </div>
+                <div class="form-actions form-actions-inline">
+                    <button type="submit" class="btn app-btn-primary">Assign crew</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="management-section" aria-labelledby="assignments-title">
+        <div class="management-section-heading">
+            <h2 id="assignments-title">Crew assignments</h2>
+            <span>@Model.Assignments.Count assignments</span>
+        </div>
+
+        @if (Model.Assignments.Count == 0)
+        {
+            <p class="management-empty-state">No crews have been assigned to this project yet.</p>
+        }
+        else
+        {
+            <div class="management-table-wrap">
+                <table class="management-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Crew</th>
+                            <th scope="col">Foreman</th>
+                            <th scope="col">Assigned from</th>
+                            <th scope="col">Assigned to</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var assignment in Model.Assignments)
+                    {
+                        <tr>
+                            <td>@assignment.CrewName</td>
+                            <td>@assignment.ForemanName</td>
+                            <td>@assignment.AssignedFrom.ToString("dd MMM yyyy")</td>
+                            <td>@(assignment.AssignedTo?.ToString("dd MMM yyyy") ?? "Ongoing")</td>
+                            <td>
+                                <span class="status-label @(assignment.IsActive ? "status-label-active" : "status-label-inactive")">
+                                    @(assignment.IsActive ? "Active" : "Ended")
+                                </span>
+                            </td>
+                            <td class="management-actions">
+                                @if (assignment.IsActive)
+                                {
+                                    <form asp-action="EndCrewAssignment" method="post">
+                                        <input type="hidden" name="id" value="@assignment.Id" />
+                                        <button type="submit" class="table-action-button">End assignment</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

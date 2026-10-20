@@ -1,0 +1,73 @@
+@model BuildingCompanyManager.Models.Payroll.PayrollIndexViewModel
+
+@{
+    ViewData["Title"] = "Monthly payroll";
+}
+
+<section class="management-page" aria-labelledby="payroll-title">
+    <header class="management-header">
+        <div>
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="payroll-title">Monthly payroll</h1>
+            <p>Worked hours, bonuses and calculated amounts for @Model.MonthName @Model.Year.</p>
+        </div>
+    </header>
+
+    <form class="employee-filter-form" method="get">
+        <div>
+            <label for="year">Year</label>
+            <input class="form-control" id="year" name="year" type="number" min="1" max="9999" value="@Model.Year" />
+        </div>
+        <div>
+            <label for="month">Month</label>
+            <select class="form-select" id="month" name="month">
+                @for (var month = 1; month <= 12; month++)
+                {
+                    <option value="@month" selected="@(month == Model.Month)">@System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(month)</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label asp-for="SelectedCrewId">Crew</label>
+            <select asp-for="SelectedCrewId" name="crewId">
+                <option value="">All crews</option>
+                @foreach (var crew in Model.Crews)
+                {
+                    <option value="@crew.Id" selected="@(crew.Id == Model.SelectedCrewId)">@crew.Name</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label asp-for="SelectedProjectId">Project</label>
+            <select asp-for="SelectedProjectId" name="projectId">
+                <option value="">All projects</option>
+                @foreach (var project in Model.Projects)
+                {
+                    <option value="@project.Id" selected="@(project.Id == Model.SelectedProjectId)">@project.Name</option>
+                }
+            </select>
+        </div>
+        <button class="btn app-btn-primary" type="submit">Apply filters</button>
+    </form>
+
+    <div class="dashboard-metrics payroll-metrics" aria-label="Payroll totals">
+        <article class="dashboard-metric"><p>Total worked hours</p><strong>@Model.TotalWorkedHours.ToString("0.##")</strong></article>
+        <article class="dashboard-metric"><p>Total bonuses</p><strong>@Model.TotalBonuses.ToString("F2")</strong></article>
+        <article class="dashboard-metric"><p>Total amount</p><strong>@Model.TotalAmount.ToString("F2")</strong></article>
+    </div>
+
+    <section class="management-section" aria-labelledby="payroll-employees-title">
+        <div class="management-section-heading"><h2 id="payroll-employees-title">Employee summary</h2><span>@Model.Employees.Count people</span></div>
+        <div class="management-table-wrap">
+            <table class="management-table">
+                <thead><tr><th scope="col">Employee</th><th scope="col">Job title</th><th scope="col">Worked hours</th><th scope="col">Bonuses</th><th scope="col">Total amount</th></tr></thead>
+                <tbody>
+                    @foreach (var employee in Model.Employees)
+                    {
+                        <tr><td>@employee.FullName</td><td>@employee.JobTitle</td><td>@employee.WorkedHours.ToString("0.##")</td><td>@employee.Bonuses.ToString("F2")</td><td><strong>@employee.TotalAmount.ToString("F2")</strong></td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>

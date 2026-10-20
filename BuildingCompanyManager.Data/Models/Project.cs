@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 using BuildingCompanyManager.Data.Enums;
 
 namespace BuildingCompanyManager.Data.Models;
@@ -17,16 +18,16 @@ public class Project
     public int TechnicalManagerId { get; set; }
 
     [Required]
-    [StringLength(150, MinimumLength = 2)]
+    [StringLength(EntityValidationConstants.ProjectNameMaxLength)]
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(100, MinimumLength = 2)]
+    [StringLength(EntityValidationConstants.CompanyNameMaxLength)]
     [Display(Name = "Client name")]
     public string ClientName { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(200, MinimumLength = 5)]
+    [StringLength(EntityValidationConstants.AddressMaxLength)]
     public string Address { get; set; } = string.Empty;
 
     [Required]

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 using BuildingCompanyManager.Data.Enums;
 
 namespace BuildingCompanyManager.Data.Models;
@@ -10,7 +11,7 @@ public class Employee
     public int Id { get; set; }
 
     [Required]
-    [StringLength(450)]
+    [StringLength(EntityValidationConstants.UserIdMaxLength)]
     public string UserId { get; set; } = string.Empty;
 
     [Required]
@@ -22,27 +23,27 @@ public class Employee
     public EmployeeRole Role { get; set; }
 
     [Required]
-    [StringLength(100, MinimumLength = 2)]
+    [StringLength(EntityValidationConstants.JobTitleMaxLength)]
     [Display(Name = "Job title")]
     public string JobTitle { get; set; } = string.Empty;
 
-    [Range(typeof(decimal), "0.01", "999999.99")]
-    [Column(TypeName = "decimal(18,2)")]
+    [Range(typeof(decimal), EntityValidationConstants.MinimumPositiveAmount, EntityValidationConstants.MaximumMoneyAmount)]
+    [Column(TypeName = EntityValidationConstants.MoneyColumnType)]
     [Display(Name = "Daily rate")]
     public decimal? DailyRate { get; set; }
 
     [Required]
-    [StringLength(50, MinimumLength = 2)]
+    [StringLength(EntityValidationConstants.PersonNameMaxLength)]
     [Display(Name = "First name")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(50, MinimumLength = 2)]
+    [StringLength(EntityValidationConstants.PersonNameMaxLength)]
     [Display(Name = "Last name")]
     public string LastName { get; set; } = string.Empty;
 
     [Phone]
-    [StringLength(20)]
+    [StringLength(EntityValidationConstants.PhoneNumberMaxLength)]
     [Display(Name = "Phone number")]
     public string? PhoneNumber { get; set; }
 
@@ -60,5 +61,8 @@ public class Employee
 
     public ICollection<AttendanceRecord> AttendanceRecords { get; set; } = new HashSet<AttendanceRecord>();
 
-    public ICollection<AttendanceRecord> MarkedAttendanceRecords { get; set; } = new HashSet<AttendanceRecord>();
+    public ICollection<AttendanceRecord> RecordedAttendanceRecords { get; set; } = new HashSet<AttendanceRecord>();
+
+    public ICollection<AuditLog> AuditLogs { get; set; } = new HashSet<AuditLog>();
+
 }

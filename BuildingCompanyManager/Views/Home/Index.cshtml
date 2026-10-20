@@ -1,8 +1,231 @@
-﻿@{
+@using BuildingCompanyManager.Data.Enums
+@model BuildingCompanyManager.Models.Home.EmployeeHomeViewModel?
+
+@{
     ViewData["Title"] = "Builder Manager";
 }
 
+@if (Model is not null)
+{
+    <section class="employee-home-page" aria-labelledby="employee-home-title">
+        <header class="employee-home-header">
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="employee-home-title">Hello, @Model.FirstName</h1>
+            <p>@Model.Role.ToDisplayName() · @Model.JobTitle</p>
+        </header>
+
+        <section class="employee-home-metrics" aria-label="This month">
+            <div>
+                <p>Worked hours this month</p>
+                <strong>@Model.MonthlyWorkedHours.ToString("0.##")</strong>
+            </div>
+            <div>
+                <p>Daily rate</p>
+                <strong>@Model.DailyRate.ToString("F2")</strong>
+                <span>Based on 8 working hours</span>
+            </div>
+            <div>
+                <p>Earned this month</p>
+                <strong>@Model.MonthlyEarnings.ToString("F2")</strong>
+                <span>Including recorded bonuses</span>
+            </div>
+        </section>
+
+        <a class="btn app-btn-primary employee-home-hours-link" asp-controller="Attendance" asp-action="Details" asp-route-employeeId="@Model.EmployeeId">View working hours</a>
+
+        @if (Model.Role == EmployeeRole.Foreman)
+        {
+            <section class="crew-overview" aria-labelledby="foreman-assignments-title">
+                <div class="crew-overview-header">
+                    <div>
+                        <p class="management-company">Crew overview</p>
+                        <h2 id="foreman-assignments-title">Your crew and projects</h2>
+                    </div>
+                </div>
+
+                @if (Model.ForemanCrewAssignments.Count == 0)
+                {
+                    <p class="crew-overview-empty">You are not assigned as Foreman to an active crew.</p>
+                }
+                else
+                {
+                    <div class="crew-grid">
+                        @foreach (var crew in Model.ForemanCrewAssignments)
+                        {
+                            <article class="crew-card">
+                                <header>
+                                    <p>Your crew</p>
+                                    <h3>@crew.CrewName</h3>
+                                    <span>Technical manager: @crew.TechnicalManagerName</span>
+                                </header>
+
+                                <div class="crew-projects">
+                                    <h4>Active project assignments</h4>
+                                    @if (crew.ProjectAssignments.Count == 0)
+                                    {
+                                        <p>This crew is not assigned to an active project.</p>
+                                    }
+                                    else
+                                    {
+                                        <ul>
+                                            @foreach (var project in crew.ProjectAssignments)
+                                            {
+                                                <li>
+                                                    <strong>@project.ProjectName</strong>
+                                                    <span>@project.ClientName</span>
+                                                    <span>Assigned from @project.AssignedFrom.ToString("dd MMM yyyy")</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
+
+        @if (Model.Role == EmployeeRole.Worker)
+        {
+            <section class="crew-overview" aria-labelledby="worker-assignments-title">
+                <div class="crew-overview-header">
+                    <div>
+                        <p class="management-company">Crew overview</p>
+                        <h2 id="worker-assignments-title">Your crew and projects</h2>
+                    </div>
+                </div>
+
+                @if (Model.CrewAssignment is null)
+                {
+                    <p class="crew-overview-empty">You are not assigned to an active crew.</p>
+                }
+                else
+                {
+                    <div class="crew-grid">
+                        <article class="crew-card">
+                            <header>
+                                <p>Your crew</p>
+                                <h3>@Model.CrewAssignment.CrewName</h3>
+                                <span>Foreman: @Model.CrewAssignment.ForemanName</span>
+                                <span>Technical manager: @Model.CrewAssignment.TechnicalManagerName</span>
+                            </header>
+
+                            <div class="crew-projects">
+                                <h4>Active project assignments</h4>
+                                @if (Model.CrewAssignment.ProjectAssignments.Count == 0)
+                                {
+                                    <p>Your crew is not assigned to an active project.</p>
+                                }
+                                else
+                                {
+                                    <ul>
+                                        @foreach (var project in Model.CrewAssignment.ProjectAssignments)
+                                        {
+                                            <li>
+                                                <strong>@project.ProjectName</strong>
+                                                <span>@project.ClientName</span>
+                                                <span>Assigned from @project.AssignedFrom.ToString("dd MMM yyyy")</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </article>
+                    </div>
+                }
+            </section>
+        }
+
+        @if (Model.Role == EmployeeRole.TechnicalManager)
+        {
+            <section class="crew-overview" aria-labelledby="managed-projects-title">
+                <div class="crew-overview-header">
+                    <div>
+                        <p class="management-company">Project overview</p>
+                        <h2 id="managed-projects-title">Projects you manage</h2>
+                    </div>
+                </div>
+
+                @if (Model.ManagedProjects.Count == 0)
+                {
+                    <p class="crew-overview-empty">You are not responsible for a project yet.</p>
+                }
+                else
+                {
+                    <div class="crew-grid">
+                        @foreach (var project in Model.ManagedProjects)
+                        {
+                            <article class="crew-card">
+                                <header>
+                                    <p>Project</p>
+                                    <h3>@project.ProjectName</h3>
+                                    <span>@project.ClientName</span>
+                                    <span>Status: @project.Status.ToDisplayName()</span>
+                                </header>
+
+                                <div class="crew-projects">
+                                    <h4>Crews currently assigned</h4>
+                                    @if (project.ActiveCrews.Count == 0)
+                                    {
+                                        <p>There is no active crew assignment for this project.</p>
+                                    }
+                                    else
+                                    {
+                                        <ul>
+                                            @foreach (var crew in project.ActiveCrews)
+                                            {
+                                                <li>
+                                                    <strong>@crew.CrewName</strong>
+                                                    <span>Foreman: @crew.ForemanName</span>
+                                                    <span>@crew.WorkersCount active workers</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+
+            @if (Model.UnassignedCrews.Count > 0)
+            {
+            <section class="crew-overview" aria-labelledby="unassigned-crews-title">
+                <div class="crew-overview-header">
+                    <div>
+                        <p class="management-company">Team overview</p>
+                        <h2 id="unassigned-crews-title">Crews waiting for project assignment</h2>
+                    </div>
+                </div>
+
+                <div class="crew-grid">
+                    @foreach (var crew in Model.UnassignedCrews)
+                    {
+                        <article class="crew-card">
+                            <header>
+                                <p>Crew</p>
+                                <h3>@crew.CrewName</h3>
+                                <span>Foreman: @crew.ForemanName</span>
+                                <span>@crew.WorkersCount active workers</span>
+                            </header>
+                        </article>
+                    }
+                </div>
+            </section>
+            }
+        }
+    </section>
+}
+else
+{
 <div class="home-page">
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success mb-0" role="status">@successMessage</div>
+    }
+
     <section class="home-hero" aria-labelledby="home-title">
         <div class="home-hero-content">
             <p class="home-eyebrow">Construction operations</p>
@@ -34,3 +257,4 @@
         </div>
     </section>
 </div>
+}

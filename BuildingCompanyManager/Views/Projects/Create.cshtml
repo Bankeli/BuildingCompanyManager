@@ -1,0 +1,25 @@
+@model BuildingCompanyManager.Models.Projects.ProjectFormViewModel
+
+@{
+    ViewData["Title"] = "Create project";
+}
+
+<section class="form-page" aria-labelledby="create-project-title">
+    <div class="form-page-header">
+        <a class="back-link" asp-action="Index">Back to projects</a>
+        <h1 id="create-project-title">Create project</h1>
+        <p>Set the project details and assign its Technical Manager.</p>
+    </div>
+
+    <form class="app-form" asp-action="Create" method="post">
+        <partial name="_ProjectForm" model="Model" />
+        <div class="form-actions">
+            <a class="btn app-btn-secondary" asp-action="Index">Cancel</a>
+            <button type="submit" class="btn app-btn-primary">Create project</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

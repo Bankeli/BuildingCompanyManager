@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 
 namespace BuildingCompanyManager.Data.Models;
 
@@ -15,8 +16,8 @@ public class AttendanceRecord
     public int ProjectCrewId { get; set; }
 
     [Required]
-    [Display(Name = "Marked by foreman")]
-    public int MarkedByForemanId { get; set; }
+    [Display(Name = "Recorded by")]
+    public int RecordedByEmployeeId { get; set; }
 
     [Required]
     [DataType(DataType.Date)]
@@ -26,23 +27,28 @@ public class AttendanceRecord
     [Display(Name = "Present")]
     public bool IsPresent { get; set; }
 
+    [Range(typeof(decimal), EntityValidationConstants.MinimumZeroAmount, EntityValidationConstants.MaximumExtraHours)]
+    [Column(TypeName = EntityValidationConstants.HoursColumnType)]
+    [Display(Name = "Worked hours")]
+    public decimal WorkedHours { get; set; }
+
     [Required]
-    [Range(typeof(decimal), "0.01", "999999.99")]
-    [Column(TypeName = "decimal(18,2)")]
+    [Range(typeof(decimal), EntityValidationConstants.MinimumPositiveAmount, EntityValidationConstants.MaximumMoneyAmount)]
+    [Column(TypeName = EntityValidationConstants.MoneyColumnType)]
     [Display(Name = "Daily rate")]
     public decimal DailyRateSnapshot { get; set; }
 
-    [Range(typeof(decimal), "0", "24")]
-    [Column(TypeName = "decimal(5,2)")]
+    [Range(typeof(decimal), EntityValidationConstants.MinimumZeroAmount, EntityValidationConstants.MaximumExtraHours)]
+    [Column(TypeName = EntityValidationConstants.HoursColumnType)]
     [Display(Name = "Extra hours")]
     public decimal ExtraHours { get; set; }
 
-    [Range(typeof(decimal), "0", "999999.99")]
-    [Column(TypeName = "decimal(18,2)")]
+    [Range(typeof(decimal), EntityValidationConstants.MinimumZeroAmount, EntityValidationConstants.MaximumMoneyAmount)]
+    [Column(TypeName = EntityValidationConstants.MoneyColumnType)]
     [Display(Name = "Bonus amount")]
     public decimal BonusAmount { get; set; }
 
-    [StringLength(1000)]
+    [StringLength(EntityValidationConstants.ForemanCommentMaxLength)]
     [Display(Name = "Foreman comment")]
     public string? ForemanComment { get; set; }
 
@@ -56,6 +62,6 @@ public class AttendanceRecord
     [ForeignKey(nameof(ProjectCrewId))]
     public ProjectCrew ProjectCrew { get; set; } = null!;
 
-    [ForeignKey(nameof(MarkedByForemanId))]
-    public Employee MarkedByForeman { get; set; } = null!;
+    [ForeignKey(nameof(RecordedByEmployeeId))]
+    public Employee RecordedByEmployee { get; set; } = null!;
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BuildingCompanyManager.Data.Common;
 
 namespace BuildingCompanyManager.Data.Models;
 

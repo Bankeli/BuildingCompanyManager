@@ -1,0 +1,62 @@
+@model BuildingCompanyManager.Models.Crews.CrewFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+<div class="form-group">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+
+<div class="form-row-grid">
+    <div class="form-group">
+        <label asp-for="TechnicalManagerId"></label>
+        <select asp-for="TechnicalManagerId" class="form-select">
+            <option value="">Select Technical Manager</option>
+            @foreach (var manager in Model.TechnicalManagers)
+            {
+                <option value="@manager.Id">@manager.FullName</option>
+            }
+        </select>
+        <span asp-validation-for="TechnicalManagerId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ForemanId"></label>
+        <select asp-for="ForemanId" class="form-select">
+            <option value="">Select Foreman</option>
+            @foreach (var foreman in Model.Foremen)
+            {
+                <option value="@foreman.Id">@foreman.FullName</option>
+            }
+        </select>
+        <span asp-validation-for="ForemanId" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="form-group">
+    <label asp-for="WorkerIds"></label>
+    <div class="worker-selection">
+        @if (Model.Workers.Count == 0)
+        {
+            <p>No available Workers have been added yet.</p>
+        }
+        else
+        {
+            @foreach (var worker in Model.Workers)
+            {
+                <label class="worker-option">
+                    @if (Model.WorkerIds.Contains(worker.Id))
+                    {
+                        <input type="checkbox" name="WorkerIds" value="@worker.Id" checked />
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="WorkerIds" value="@worker.Id" />
+                    }
+                    <span>@worker.FullName</span>
+                </label>
+            }
+        }
+    </div>
+    <span asp-validation-for="WorkerIds" class="text-danger"></span>
+</div>

@@ -1,0 +1,114 @@
+@model BuildingCompanyManager.Models.Dashboard.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<section class="dashboard-page" aria-labelledby="dashboard-title">
+    <header class="dashboard-header">
+        <div>
+            <p class="dashboard-company">@Model.CompanyName</p>
+            <h1 id="dashboard-title">Welcome back, @Model.OwnerFirstName</h1>
+            <p class="dashboard-summary">Your company operations at a glance.</p>
+        </div>
+        <div class="dashboard-header-actions">
+            <a class="btn app-btn-secondary" asp-controller="Projects" asp-action="Create">New project</a>
+            <a class="btn app-btn-primary" asp-controller="Employees" asp-action="Add">Add employee</a>
+        </div>
+    </header>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success dashboard-notice" role="status">@successMessage</div>
+    }
+
+    <div class="dashboard-metrics" aria-label="Company overview">
+        <article class="dashboard-metric">
+            <p>Active employees</p>
+            <strong>@Model.ActiveEmployeesCount</strong>
+        </article>
+        <article class="dashboard-metric">
+            <p>Active crews</p>
+            <strong>@Model.ActiveCrewsCount</strong>
+        </article>
+        <article class="dashboard-metric">
+            <p>Total projects</p>
+            <strong>@Model.TotalProjectsCount</strong>
+        </article>
+        <article class="dashboard-metric">
+            <p>Active projects</p>
+            <strong>@Model.ActiveProjectsCount</strong>
+        </article>
+    </div>
+
+    <section class="dashboard-quick-actions" aria-labelledby="quick-actions-title">
+        <h2 id="quick-actions-title">Quick actions</h2>
+        <div>
+            <a asp-controller="Employees" asp-action="Index">Employees</a>
+            <a asp-controller="Crews" asp-action="Index">Crews</a>
+            <a asp-controller="Projects" asp-action="Index">Projects</a>
+            <a asp-controller="Projects" asp-action="Create">Create project</a>
+        </div>
+    </section>
+
+    <div class="dashboard-content-grid">
+        <section class="dashboard-panel" aria-labelledby="active-projects-title">
+            <div class="dashboard-panel-heading">
+                <h2 id="active-projects-title">Active projects</h2>
+                <a asp-controller="Projects" asp-action="Index">View all</a>
+            </div>
+
+            @if (Model.ActiveProjects.Count == 0)
+            {
+                <p class="dashboard-empty-state">There are no active projects yet.</p>
+            }
+            else
+            {
+                <ul class="dashboard-list">
+                    @foreach (var project in Model.ActiveProjects)
+                    {
+                        <li>
+                            <div>
+                                <a asp-controller="Projects" asp-action="ManageCrews" asp-route-id="@project.Id">@project.Name</a>
+                                <span>@project.ClientName</span>
+                            </div>
+                            <div class="dashboard-list-meta">
+                                <span>@project.TechnicalManagerName</span>
+                                <strong>@project.ActiveCrewsCount crews</strong>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="dashboard-panel" aria-labelledby="active-crews-title">
+            <div class="dashboard-panel-heading">
+                <h2 id="active-crews-title">Active crews</h2>
+                <a asp-controller="Crews" asp-action="Index">View all</a>
+            </div>
+
+            @if (Model.ActiveCrews.Count == 0)
+            {
+                <p class="dashboard-empty-state">There are no active crews yet.</p>
+            }
+            else
+            {
+                <ul class="dashboard-list">
+                    @foreach (var crew in Model.ActiveCrews)
+                    {
+                        <li>
+                            <div>
+                                <a asp-controller="Crews" asp-action="Edit" asp-route-id="@crew.Id">@crew.Name</a>
+                                <span>Foreman: @crew.ForemanName</span>
+                            </div>
+                            <div class="dashboard-list-meta">
+                                <strong>@crew.WorkersCount workers</strong>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</section>

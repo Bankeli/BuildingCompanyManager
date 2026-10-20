@@ -1,0 +1,160 @@
+@using BuildingCompanyManager.Data.Enums
+@model BuildingCompanyManager.Models.Employees.EmployeeDetailsViewModel
+
+@{
+    ViewData["Title"] = "Employee profile";
+    var resetEmployeeEmail = TempData["ResetEmployeeEmail"] as string;
+    var generatedPassword = TempData["GeneratedPassword"] as string;
+}
+
+<section class="employee-profile-page" aria-labelledby="employee-profile-title">
+    <header class="employee-profile-header">
+        <div>
+            <a class="back-link" asp-action="Index">Back to employees</a>
+            <h1 id="employee-profile-title">@Model.FirstName @Model.LastName</h1>
+            <p>@Model.Role.ToDisplayName() - @Model.JobTitle</p>
+        </div>
+        <div class="employee-profile-header-actions">
+            @if (Model.Role != EmployeeRole.Owner)
+            {
+                <a class="btn app-btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Edit employment</a>
+            }
+            <span class="status-label @(Model.IsActive ? "status-label-active" : "status-label-inactive")">
+                @(Model.IsActive ? "Active" : "Inactive")
+            </span>
+        </div>
+    </header>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success management-notice" role="status">@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger management-notice" role="alert">@errorMessage</div>
+    }
+
+    @if (resetEmployeeEmail is not null && generatedPassword is not null)
+    {
+        <section class="new-employee-credentials employee-profile-credentials" aria-label="New employee password">
+            <p>New temporary password</p>
+            <dl>
+                <div>
+                    <dt>Email</dt>
+                    <dd>@resetEmployeeEmail</dd>
+                </div>
+                <div>
+                    <dt>Temporary password</dt>
+                    <dd><code>@generatedPassword</code></dd>
+                </div>
+            </dl>
+        </section>
+    }
+
+    <div class="employee-profile-grid">
+        <section class="employee-profile-section" aria-labelledby="account-title">
+            <h2 id="account-title">Account and contact</h2>
+            <dl>
+                <div>
+                    <dt>Email</dt>
+                    <dd>@Model.Email</dd>
+                </div>
+                <div>
+                    <dt>Phone number</dt>
+                    <dd>@(Model.PhoneNumber ?? "Not provided")</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="employee-profile-section" aria-labelledby="employment-title">
+            <h2 id="employment-title">Employment</h2>
+            <dl>
+                <div>
+                    <dt>Role</dt>
+                    <dd>@Model.Role.ToDisplayName()</dd>
+                </div>
+                <div>
+                    <dt>Job title</dt>
+                    <dd>@Model.JobTitle</dd>
+                </div>
+                <div>
+                    <dt>Daily rate</dt>
+                    <dd>@(Model.DailyRate is decimal dailyRate ? $"{dailyRate:F2}" : "Not applicable")</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="employee-profile-section" aria-labelledby="crew-title">
+            <h2 id="crew-title">Crew assignment</h2>
+            @if (Model.CrewAssignments.Count == 0)
+            {
+                <p class="employee-profile-empty">This employee is not assigned to or responsible for an active crew.</p>
+            }
+            else
+            {
+                <ul class="employee-crew-list">
+                    @foreach (var crew in Model.CrewAssignments)
+                    {
+                        <li>
+                            <strong>@crew.Name</strong>
+                            <span>Technical manager: @crew.TechnicalManagerName</span>
+                            <span>Foreman: @crew.ForemanName</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="employee-profile-section" aria-labelledby="projects-title">
+            <h2 id="projects-title">Project assignments</h2>
+            @if (Model.ProjectAssignments.Count == 0)
+            {
+                <p class="employee-profile-empty">This employee is not assigned to or responsible for a project.</p>
+            }
+            else
+            {
+                <ul class="employee-project-list">
+                    @foreach (var project in Model.ProjectAssignments)
+                    {
+                        <li>
+                            <a asp-controller="Projects" asp-action="ManageCrews" asp-route-id="@project.Id">@project.Name</a>
+                            <span>@project.ClientName - @project.Status.ToDisplayName()</span>
+                            @if (project.IsTechnicalManager)
+                            {
+                                <span>Technical manager</span>
+                            }
+                            @if (project.CrewNames.Count > 0)
+                            {
+                                <span>Crew: @string.Join(", ", project.CrewNames)</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+
+    @if (Model.Role != EmployeeRole.Owner)
+    {
+        <section class="employee-account-actions" aria-labelledby="account-actions-title">
+            <h2 id="account-actions-title">Account actions</h2>
+            <p>Generate a new temporary password or update this employee account status.</p>
+            <div>
+                @if (Model.IsActive)
+                {
+                    <form asp-action="ResetPassword" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn app-btn-secondary" type="submit">Generate new password</button>
+                    </form>
+                }
+                <form asp-action="ToggleStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button class="btn @(Model.IsActive ? "app-btn-danger" : "app-btn-primary")" type="submit">
+                        @(Model.IsActive ? "Deactivate account" : "Reactivate account")
+                    </button>
+                </form>
+            </div>
+        </section>
+    }
+</section>

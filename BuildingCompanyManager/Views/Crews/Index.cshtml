@@ -1,0 +1,81 @@
+@model BuildingCompanyManager.Models.Crews.CrewIndexViewModel
+
+@{
+    ViewData["Title"] = "Crews";
+}
+
+<section class="management-page" aria-labelledby="crews-title">
+    <header class="management-header">
+        <div>
+            <p class="management-company">@Model.CompanyName</p>
+            <h1 id="crews-title">Crews</h1>
+            <p>Organize workers under their Foremen and Technical Managers.</p>
+        </div>
+        <a class="btn app-btn-primary" asp-action="Create">Create crew</a>
+    </header>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success management-notice" role="status">@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger management-notice" role="alert">@errorMessage</div>
+    }
+
+    <section class="management-section" aria-labelledby="crew-list-title">
+        <div class="management-section-heading">
+            <h2 id="crew-list-title">Company crews</h2>
+            <span>@Model.Crews.Count crews</span>
+        </div>
+
+        @if (Model.Crews.Count == 0)
+        {
+            <p class="management-empty-state">Your company does not have any crews yet.</p>
+        }
+        else
+        {
+            <div class="management-table-wrap">
+                <table class="management-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Crew</th>
+                            <th scope="col">Technical Manager</th>
+                            <th scope="col">Foreman</th>
+                            <th scope="col">Workers</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var crew in Model.Crews)
+                    {
+                        <tr>
+                            <td>@crew.Name</td>
+                            <td>@crew.TechnicalManagerName</td>
+                            <td>@crew.ForemanName</td>
+                            <td>@crew.WorkersCount</td>
+                            <td>
+                                <span class="status-label @(crew.IsActive ? "status-label-active" : "status-label-inactive")">
+                                    @(crew.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="management-actions">
+                                @if (crew.IsActive)
+                                {
+                                    <a class="table-action-link" asp-action="Edit" asp-route-id="@crew.Id">Edit</a>
+                                    <form asp-action="Deactivate" method="post">
+                                        <input type="hidden" name="id" value="@crew.Id" />
+                                        <button type="submit" class="table-action-button">Deactivate</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</section>

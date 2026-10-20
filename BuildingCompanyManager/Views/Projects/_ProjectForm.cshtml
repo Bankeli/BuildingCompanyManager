@@ -1,0 +1,60 @@
+@using BuildingCompanyManager.Data.Enums
+@model BuildingCompanyManager.Models.Projects.ProjectFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+<div class="form-group">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+
+<div class="form-row-grid">
+    <div class="form-group">
+        <label asp-for="ClientName"></label>
+        <input asp-for="ClientName" class="form-control" />
+        <span asp-validation-for="ClientName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TechnicalManagerId"></label>
+        <select asp-for="TechnicalManagerId" class="form-select">
+            <option value="">Select Technical Manager</option>
+            @foreach (var manager in Model.TechnicalManagers)
+            {
+                <option value="@manager.Id">@manager.FullName</option>
+            }
+        </select>
+        <span asp-validation-for="TechnicalManagerId" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="form-group">
+    <label asp-for="Address"></label>
+    <input asp-for="Address" class="form-control" />
+    <span asp-validation-for="Address" class="text-danger"></span>
+</div>
+
+<div class="form-row-grid">
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-select">
+            <option value="@((int)ProjectStatus.Planning)">Planning</option>
+            <option value="@((int)ProjectStatus.Active)">Active</option>
+            <option value="@((int)ProjectStatus.OnHold)">On hold</option>
+            <option value="@((int)ProjectStatus.Completed)">Completed</option>
+            <option value="@((int)ProjectStatus.Cancelled)">Cancelled</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="StartDate"></label>
+        <input asp-for="StartDate" class="form-control" />
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="form-group">
+    <label asp-for="EndDate"></label>
+    <input asp-for="EndDate" class="form-control" />
+    <span asp-validation-for="EndDate" class="text-danger"></span>
+</div>

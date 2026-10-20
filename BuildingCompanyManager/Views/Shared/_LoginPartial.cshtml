@@ -1,10 +1,46 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using BuildingCompanyManager.Data
+@using BuildingCompanyManager.Data.Enums
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Identity
+@inject ApplicationDbContext DbContext
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
+    var userId = UserManager.GetUserId(User);
+    EmployeeRole? employeeRole = null;
+
+    if (userId is not null)
+    {
+        employeeRole = await DbContext.Employees
+            .AsNoTracking()
+            .Where(employee => employee.UserId == userId && employee.IsActive)
+            .Select(employee => (EmployeeRole?)employee.Role)
+            .SingleOrDefaultAsync();
+    }
+
+    if (employeeRole == EmployeeRole.Owner)
+    {
+        <li class="nav-item">
+            <a class="nav-link app-auth-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link app-auth-link" asp-controller="Home" asp-action="Index">Home</a>
+        </li>
+    }
+
+    if (employeeRole is EmployeeRole.Owner or EmployeeRole.TechnicalManager or EmployeeRole.Foreman)
+    {
+        <li class="nav-item">
+            <a class="nav-link app-auth-link" asp-controller="Attendance" asp-action="Index">Attendance</a>
+        </li>
+    }
+
     <li class="nav-item">
         <a class="nav-link app-auth-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity?.Name</a>
     </li>

@@ -52,21 +52,24 @@ namespace BuildingCompanyManager.Data.Migrations
                     b.Property<bool>("IsPresent")
                         .HasColumnType("bit");
 
-                    b.Property<int>("MarkedByForemanId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("ProjectCrewId")
                         .HasColumnType("int");
 
+                    b.Property<int>("RecordedByEmployeeId")
+                        .HasColumnType("int");
+
                     b.Property<DateOnly>("WorkDate")
                         .HasColumnType("date");
 
+                    b.Property<decimal>("WorkedHours")
+                        .HasColumnType("decimal(5,2)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("MarkedByForemanId");
+                    b.HasIndex("RecordedByEmployeeId");
 
                     b.HasIndex("EmployeeId", "WorkDate")
                         .IsUnique();
@@ -78,7 +81,53 @@ namespace BuildingCompanyManager.Data.Migrations
                             t.HasCheckConstraint("CK_AttendanceRecords_BonusAmount", "[BonusAmount] >= 0");
 
                             t.HasCheckConstraint("CK_AttendanceRecords_ExtraHours", "[ExtraHours] >= 0 AND [ExtraHours] <= 24");
+
+                            t.HasCheckConstraint("CK_AttendanceRecords_ExtraHoursWithinWorkedHours", "[ExtraHours] <= [WorkedHours]");
+
+                            t.HasCheckConstraint("CK_AttendanceRecords_WorkedHours", "[WorkedHours] >= 0 AND [WorkedHours] <= 24");
                         });
+                });
+
+            modelBuilder.Entity("BuildingCompanyManager.Data.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Action")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ActorEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorEmployeeId");
+
+                    b.HasIndex("CompanyId", "CreatedOn");
+
+                    b.ToTable("AuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("BuildingCompanyManager.Data.Models.Company", b =>
@@ -105,6 +154,9 @@ namespace BuildingCompanyManager.Data.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.HasIndex("RegistrationNumber")
                         .IsUnique();
@@ -502,23 +554,42 @@ namespace BuildingCompanyManager.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BuildingCompanyManager.Data.Models.Employee", "MarkedByForeman")
-                        .WithMany("MarkedAttendanceRecords")
-                        .HasForeignKey("MarkedByForemanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("BuildingCompanyManager.Data.Models.ProjectCrew", "ProjectCrew")
                         .WithMany("AttendanceRecords")
                         .HasForeignKey("ProjectCrewId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("BuildingCompanyManager.Data.Models.Employee", "RecordedByEmployee")
+                        .WithMany("RecordedAttendanceRecords")
+                        .HasForeignKey("RecordedByEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Employee");
 
-                    b.Navigation("MarkedByForeman");
-
                     b.Navigation("ProjectCrew");
+
+                    b.Navigation("RecordedByEmployee");
+                });
+
+            modelBuilder.Entity("BuildingCompanyManager.Data.Models.AuditLog", b =>
+                {
+                    b.HasOne("BuildingCompanyManager.Data.Models.Employee", "ActorEmployee")
+                        .WithMany("AuditLogs")
+                        .HasForeignKey("ActorEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuildingCompanyManager.Data.Models.Company", "Company")
+                        .WithMany("AuditLogs")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ActorEmployee");
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("BuildingCompanyManager.Data.Models.Crew", b =>
@@ -663,6 +734,8 @@ namespace BuildingCompanyManager.Data.Migrations
 
             modelBuilder.Entity("BuildingCompanyManager.Data.Models.Company", b =>
                 {
+                    b.Navigation("AuditLogs");
+
                     b.Navigation("Crews");
 
                     b.Navigation("Employees");
@@ -681,11 +754,13 @@ namespace BuildingCompanyManager.Data.Migrations
                 {
                     b.Navigation("AttendanceRecords");
 
+                    b.Navigation("AuditLogs");
+
                     b.Navigation("ManagedCrews");
 
                     b.Navigation("ManagedProjects");
 
-                    b.Navigation("MarkedAttendanceRecords");
+                    b.Navigation("RecordedAttendanceRecords");
                 });
 
             modelBuilder.Entity("BuildingCompanyManager.Data.Models.Project", b =>
