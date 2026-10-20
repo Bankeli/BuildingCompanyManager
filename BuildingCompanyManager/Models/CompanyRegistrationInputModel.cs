@@ -14,7 +14,7 @@ public class CompanyRegistrationInputModel
         @"^(\d{9}|\d{13})$",
         ErrorMessage = "EIK must contain exactly 9 or 13 digits.")]
     [Display(Name = "EIK")]
-    public string RegistrationNumber { get; set; } = string.Empty;
+    public string RegistrationNumber { get; set; }
 
     [Required]
     [StringLength(50, MinimumLength = 2)]
