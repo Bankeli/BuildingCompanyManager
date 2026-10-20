@@ -50,7 +50,13 @@ Open `BuildingCompanyManager.sln` in Visual Studio after restoring the packages.
 
 ### 2. Configure SQL Server
 
-Create or update the ignored file `BuildingCompanyManager/appsettings.Development.json` with your SQL Server instance and database name:
+Copy the tracked template to the ignored local file:
+
+```powershell
+Copy-Item BuildingCompanyManager/appsettings.Development.example.json BuildingCompanyManager/appsettings.Development.json
+```
+
+Then update `BuildingCompanyManager/appsettings.Development.json` with your SQL Server instance, database name, and preferred demo-data setting:
 
 ```json
 {
@@ -71,22 +77,20 @@ Choose the server name that works in SQL Server Management Studio:
 | SQL Server Express named instance | `.\\SQLEXPRESS` |
 | SQL Server LocalDB | `(localdb)\\MSSQLLocalDB` |
 
-### 3. Create the database
-
-1. Open **Tools > NuGet Package Manager > Package Manager Console** in Visual Studio.
-2. Set `BuildingCompanyManager` as the Default project in the Package Manager Console.
-3. Create or update the database by running:
-
-```powershell
-Update-Database
-```
-
-### 4. Run the application
+### 3. Start the application
 
 Start the application with `F5` or `Ctrl+F5` in Visual Studio, or run:
 
 ```powershell
 dotnet run --project BuildingCompanyManager
+```
+
+When the application starts, it automatically applies the Entity Framework Core migrations. If the configured database does not exist, SQL Server creates it. If it already exists, the application uses it and applies only migrations that have not been applied yet.
+
+You can still run migrations manually from Visual Studio when needed:
+
+```powershell
+Update-Database
 ```
 
 The first public account must be created through **Register company**. This creates a Company, an ASP.NET Core Identity user, and an Owner employee profile.
@@ -108,8 +112,8 @@ It does not create attendance records. Use the Attendance area to add working ho
 ### Enable the seed
 
 1. Use a new empty database, for example `BuilderManagerDemo`.
-2. Apply the migrations with `Update-Database`.
-3. In `BuildingCompanyManager/appsettings.Development.json`, set `SeedOnStartup` to `true`:
+2. Copy `BuildingCompanyManager/appsettings.Development.example.json` to `BuildingCompanyManager/appsettings.Development.json`.
+3. Update the SQL Server instance in the copied file if needed. The template already enables `SeedOnStartup`:
 
 ```json
 {

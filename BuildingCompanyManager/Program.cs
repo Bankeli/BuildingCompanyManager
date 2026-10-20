@@ -31,14 +31,7 @@ namespace BuildingCompanyManager
 
             var app = builder.Build();
 
-            if (app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("DemoData:SeedOnStartup"))
-            {
-                using var scope = app.Services.CreateScope();
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-                await DevelopmentDataSeeder.SeedAsync(dbContext, userManager);
-            }
+            await InitializeDatabaseAsync(app);
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -67,6 +60,22 @@ namespace BuildingCompanyManager
                .WithStaticAssets();
 
             app.Run();
+        }
+
+        private static async Task InitializeDatabaseAsync(WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            await dbContext.Database.MigrateAsync();
+
+            if (!app.Environment.IsDevelopment() || !app.Configuration.GetValue<bool>("DemoData:SeedOnStartup"))
+            {
+                return;
+            }
+
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            await DevelopmentDataSeeder.SeedAsync(dbContext, userManager);
         }
     }
 }
