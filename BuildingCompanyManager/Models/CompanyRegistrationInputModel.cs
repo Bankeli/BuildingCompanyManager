@@ -15,7 +15,7 @@ public class CompanyRegistrationInputModel
         CompanyRegistrationValidationConstants.RegistrationNumberPattern,
         ErrorMessage = CompanyRegistrationValidationConstants.RegistrationNumberError)]
     [Display(Name = "EIK")]
-    public string RegistrationNumber { get; set; } = string.Empty;
+    public string RegistrationNumber { get; set; }
 
     [Required]
     [StringLength(CompanyRegistrationValidationConstants.AddressMaxLength, MinimumLength = CompanyRegistrationValidationConstants.AddressMinLength)]
